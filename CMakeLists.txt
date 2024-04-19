@@ -9,7 +9,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 add_library(MazeViewer STATIC lib/MazeViewer.c)
+add_library(MazeTools STATIC lib/MazeTools.c)
 
 add_executable(MazeCreator src/main.c)
 
-target_link_libraries(${MazeCreator} MazeViewer)
+target_include_directories(MazeCreator PUBLIC lib)
+target_link_libraries(MazeCreator MazeViewer MazeTools)
