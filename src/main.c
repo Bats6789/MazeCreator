@@ -29,7 +29,7 @@ static int quite_flag = 0;    // option to silence output
 static int verbose_flag = 0;  // option to print out everything
 
 /************************************************************************
- *                       FUNCTION DECLERATIONS                          *
+ *                       FUNCTION DECLARATIONS                          *
  ************************************************************************/
 void help();
 
