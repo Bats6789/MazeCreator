@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef enum { up, down, left, right } Direction_t;
 
@@ -49,11 +50,13 @@ typedef struct {
 Maze_t createMaze(const char *maze);
 Maze_t createMazeWH(size_t width, size_t height);
 void generateMaze(Maze_t *maze);
+void generateMazeWithSteps(Maze_t *maze, FILE *stream);
 char *graphToString(Cell_t *cells, size_t width, size_t height);
 void freeMaze(Maze_t maze);
 bool isSameTree(Tree_t *tree1, Tree_t *tree2);
 void joinTrees(Tree_t *head, Tree_t *node);
 Tree_t *getHead(Tree_t *tree);
 Point_t pointShift(Point_t point, Direction_t direction);
+void fprintStep(FILE *stream, Maze_t *maze);
 
 #endif /* ifndef __MAZE_TOOLS_H__ */

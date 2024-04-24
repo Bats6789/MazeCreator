@@ -25,7 +25,8 @@
 /************************************************************************
  *                            STATIC VARS                               *
  ************************************************************************/
-static int quite_flag;
+static int quite_flag = 0;    // option to silence output
+static int verbose_flag = 0;  // option to print out everything
 
 /************************************************************************
  *                       FUNCTION DECLERATIONS                          *
@@ -45,15 +46,17 @@ int main(int argc, char *argv[]) {
     size_t width = DEFAULT_HEIGHT;
     Maze_t maze;
     FILE *outFile = stdout;
+    FILE *stepFile;
 
     // clang-format off
 	static struct option long_opts[] = {
 		{"quite", no_argument, &quite_flag, 1},
 		{"output", required_argument, NULL, 'o'},
+		{"verbose", optional_argument, &verbose_flag, 1},
 		{0, 0, 0, 0}};
     // clang-format on
 
-    while ((opt = getopt_long(argc, argv, "hqo:", long_opts, &opts_index)) !=
+    while ((opt = getopt_long(argc, argv, "hqo:v::", long_opts, &opts_index)) !=
            -1) {
         switch (opt) {
             case 0:
@@ -76,13 +79,32 @@ int main(int argc, char *argv[]) {
                 quite_flag = 1;
                 break;
 
-			case 'o':
-				outFile = fopen(optarg, "w");
-				if (!outFile) {
-					printError("ERROR opening \"%s\": %s", optarg, strerror(errno));
-					return EXIT_FAILURE;
-				}
-				break;
+            case 'o':
+                outFile = fopen(optarg, "w");
+                if (!outFile) {
+                    printError("ERROR opening \"%s\": %s", optarg,
+                               strerror(errno));
+                    return EXIT_FAILURE;
+                }
+                break;
+            case 'v':
+                if (!optarg) {
+                    stepFile = fopen("steps.step", "w");
+                    if (!stepFile) {
+                        printError("ERROR opening \"steps.step\": %s",
+                                   strerror(errno));
+                        return EXIT_FAILURE;
+                    }
+                } else {
+                    stepFile = fopen(optarg, "w");
+                    if (!stepFile) {
+                        printError("ERROR opening \"%s\": %s", optarg,
+                                   strerror(errno));
+                        return EXIT_FAILURE;
+                    }
+                }
+                verbose_flag = 1;
+                break;
 
             case '?':
                 return EXIT_FAILURE;
@@ -108,12 +130,20 @@ int main(int argc, char *argv[]) {
 
     maze = createMazeWH(width, height);
 
-    generateMaze(&maze);
+	if (verbose_flag) {
+		generateMazeWithSteps(&maze, stepFile);
+	} else {
+		generateMaze(&maze);
+	}
 
     fprintf(outFile, "%s", maze.str);
 
-	if (outFile != stdout) {
-		fclose(outFile);
+    if (outFile != stdout) {
+        fclose(outFile);
+    }
+
+	if (verbose_flag) {
+		fclose(stepFile);
 	}
 
     freeMaze(maze);
