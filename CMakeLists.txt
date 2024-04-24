@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 
-project(MazeCreator VERSION 0.1 LANGUAGES C)
+project(MazeCreator VERSION 1.0 LANGUAGES C)
 
 set(CMAKE_C_FLAGS "-Wall")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
