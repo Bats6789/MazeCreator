@@ -52,7 +52,8 @@ int main(int argc, char *argv[]) {
 	static struct option long_opts[] = {
 		{"quite", no_argument, &quite_flag, 1},
 		{"output", required_argument, NULL, 'o'},
-		{"verbose", optional_argument, &verbose_flag, 1},
+		{"verbose", optional_argument, NULL, 'v'},
+		{"help", no_argument, NULL, 'h'},
 		{0, 0, 0, 0}};
     // clang-format on
 
@@ -60,14 +61,6 @@ int main(int argc, char *argv[]) {
            -1) {
         switch (opt) {
             case 0:
-                if (long_opts[opts_index].flag != 0) {
-                    break;
-                }
-                printf("option %s", long_opts[opts_index].name);
-                if (optarg) {
-                    printf(" with arg %s", optarg);
-                }
-                putchar('\n');
                 break;
 
             case 'h':
@@ -88,6 +81,9 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'v':
+				if (optarg == NULL && optind < argc && argv[optind][0] != '-'){
+					optarg = argv[optind++];
+				}
                 if (!optarg) {
                     stepFile = fopen("steps.step", "w");
                     if (!stepFile) {
@@ -155,7 +151,18 @@ int main(int argc, char *argv[]) {
  *                       FUNCTION DEFINITIONS                           *
  ************************************************************************/
 
-void help() { printf("TODO: Write help\n"); }
+void help() {
+	puts("Usage:");
+	puts("  MazeCreator                     Generate a 10x10 maze");
+	puts("  MazeCreator [W] [H]             Generate a maze of size WxH");
+	puts("  MazeCreator [options] [W] [H]   Generates a maze of size WxH");
+	puts("");
+	puts("Options:");
+	puts("  -q, --quite                     Silence all output");
+	puts("  -o <file>, --output <file>      Output maze to <file>");
+	puts("  -v [file], --verbose [file]     Send each step for maze to <file>");
+	puts("  -h, --help                      Print this message");
+}
 
 int printError(const char *frmt, ...) {
     va_list args;
