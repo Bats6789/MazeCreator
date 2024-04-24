@@ -99,6 +99,8 @@ int main(int argc, char *argv[]) {
 	printf("(%zu, %zu)\n", width, height);
     maze = createMazeWH(width, height);
 
+	generateMaze(&maze);
+
 	printMaze(maze);
 
     freeMaze(maze);
