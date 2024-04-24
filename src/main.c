@@ -11,9 +11,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "MazeTools.h"
-#include "MazeViewer.h"
 
 /************************************************************************
  *                               DEFINES                                *
@@ -43,15 +43,17 @@ int main(int argc, char *argv[]) {
     int opts_index = 0;
     size_t height = DEFAULT_HEIGHT;
     size_t width = DEFAULT_HEIGHT;
-	Maze_t maze;
+    Maze_t maze;
+    FILE *outFile = stdout;
 
     // clang-format off
-    static struct option long_opts[] = {
-        {"quite", no_argument, &quite_flag, 1},
-        {0, 0, 0, 0}};
+	static struct option long_opts[] = {
+		{"quite", no_argument, &quite_flag, 1},
+		{"output", required_argument, NULL, 'o'},
+		{0, 0, 0, 0}};
     // clang-format on
 
-    while ((opt = getopt_long(argc, argv, "hq", long_opts, &opts_index)) !=
+    while ((opt = getopt_long(argc, argv, "hqo:", long_opts, &opts_index)) !=
            -1) {
         switch (opt) {
             case 0:
@@ -74,6 +76,14 @@ int main(int argc, char *argv[]) {
                 quite_flag = 1;
                 break;
 
+			case 'o':
+				outFile = fopen(optarg, "w");
+				if (!outFile) {
+					printError("ERROR opening \"%s\": %s", optarg, strerror(errno));
+					return EXIT_FAILURE;
+				}
+				break;
+
             case '?':
                 return EXIT_FAILURE;
                 break;
@@ -90,18 +100,21 @@ int main(int argc, char *argv[]) {
               width);
     } else if (optind + 2 < argc) {
         printError("Not enough arguments");
-		return EXIT_FAILURE;
+        return EXIT_FAILURE;
     } else {
-		height = strtoull(argv[optind++], NULL, 10);
-		width = strtoull(argv[optind++], NULL, 10);
+        height = strtoull(argv[optind++], NULL, 10);
+        width = strtoull(argv[optind++], NULL, 10);
     }
 
-	printf("(%zu, %zu)\n", width, height);
     maze = createMazeWH(width, height);
 
-	generateMaze(&maze);
+    generateMaze(&maze);
 
-	printMaze(maze);
+    fprintf(outFile, "%s", maze.str);
+
+	if (outFile != stdout) {
+		fclose(outFile);
+	}
 
     freeMaze(maze);
 
