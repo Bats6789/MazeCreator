@@ -5,13 +5,16 @@ project(MazeCreator VERSION 1.0 LANGUAGES C)
 set(CMAKE_C_FLAGS "-Wall")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
-add_library(MazeViewer STATIC lib/MazeViewer.c)
-add_library(MazeTools STATIC lib/MazeTools.c)
+add_library(MazeViewer STATIC src/MazeViewer.c)
+add_library(MazeTools STATIC src/MazeTools.c)
 
 add_executable(MazeCreator src/main.c)
 
-target_include_directories(MazeCreator PUBLIC lib)
+target_include_directories(MazeCreator PUBLIC include)
+target_include_directories(MazeViewer PUBLIC include)
+target_include_directories(MazeTools PUBLIC include)
 target_link_libraries(MazeCreator MazeViewer MazeTools)
