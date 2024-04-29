@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
                 break;
+
             case 'v':
 				if (optarg == NULL && optind < argc && argv[optind][0] != '-'){
 					optarg = argv[optind++];
@@ -116,12 +117,31 @@ int main(int argc, char *argv[]) {
     if (argv[optind] == NULL) {
         print("Using default options (height = %d, width = %d)\n", height,
               width);
-    } else if (optind + 2 < argc) {
+    } else if (optind + 2 > argc) {
         printError("Not enough arguments");
         return EXIT_FAILURE;
     } else {
-        height = strtoull(argv[optind++], NULL, 10);
-        width = strtoull(argv[optind++], NULL, 10);
+			char *tmp;
+			height = strtoull(argv[optind++], &tmp, 10);
+			if (height == 0) {
+				if (errno != 0) {
+					printError("ERROR: %s\n", strerror(errno));
+					return EXIT_FAILURE;
+				} else if (argv[optind - 1] == tmp) {
+					printError("Invalid value {%s} received\n", argv[optind - 1]);
+					return EXIT_FAILURE;
+				}
+			}
+			width = strtoull(argv[optind++], &tmp, 10);
+			if (width == 0) {
+				if (errno != 0) {
+					printError("ERROR: %s\n", strerror(errno));
+					return EXIT_FAILURE;
+				} else if (argv[optind - 1] == tmp) {
+					printError("Invalid value {%s} received\n", argv[optind - 1]);
+					return EXIT_FAILURE;
+				}
+			}
     }
 
     maze = createMazeWH(width, height);
