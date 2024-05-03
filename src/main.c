@@ -115,15 +115,15 @@ int main(int argc, char *argv[]) {
     }
 
     if (argv[optind] == NULL) {
-        print("Using default options (height = %d, width = %d)\n", height,
-              width);
+        print("Using default options (width = %d, height = %d)\n", width,
+              height);
     } else if (optind + 2 > argc) {
         printError("Not enough arguments");
         return EXIT_FAILURE;
     } else {
 			char *tmp;
-			height = strtoull(argv[optind++], &tmp, 10);
-			if (height == 0) {
+			width = strtoull(argv[optind++], &tmp, 10);
+			if (width == 0) {
 				if (errno != 0) {
 					printError("ERROR: %s\n", strerror(errno));
 					return EXIT_FAILURE;
@@ -132,8 +132,8 @@ int main(int argc, char *argv[]) {
 					return EXIT_FAILURE;
 				}
 			}
-			width = strtoull(argv[optind++], &tmp, 10);
-			if (width == 0) {
+			height = strtoull(argv[optind++], &tmp, 10);
+			if (height == 0) {
 				if (errno != 0) {
 					printError("ERROR: %s\n", strerror(errno));
 					return EXIT_FAILURE;
