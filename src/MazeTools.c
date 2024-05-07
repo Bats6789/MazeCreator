@@ -7,50 +7,50 @@
 
 Maze_t createMaze(const char *str) {
     Maze_t maze = {0, 0, NULL, NULL};
-	size_t strWidth = 1;
-	size_t len = strlen(str);
-	size_t rows = 0;
+    size_t strWidth = 1;
+    size_t len = strlen(str);
+    size_t rows = 0;
 
-	for (size_t i = 0; i < len; i += strWidth) {
-		if (str[i] == '\n') {
-			rows += 1;
-			if (strWidth == 1) {
-				maze.width = (i - 1) / 2;
-				strWidth = i + 1;
-			}
-		}
-	}
+    for (size_t i = 0; i < len; i += strWidth) {
+        if (str[i] == '\n') {
+            rows += 1;
+            if (strWidth == 1) {
+                maze.width = (i - 1) / 2;
+                strWidth = i + 1;
+            }
+        }
+    }
 
-	if (str[len - 2] != '\n') {
-		rows += 1;
-	}
+    if (str[len - 2] != '\n') {
+        rows += 1;
+    }
 
-	maze.height = (rows - 1) / 2;
+    maze.height = (rows - 1) / 2;
 
-	maze.cells = malloc(sizeof(*maze.cells) * maze.width * maze.height);
+    maze.cells = malloc(sizeof(*maze.cells) * maze.width * maze.height);
 
     for (size_t y = 0; y < maze.height; ++y) {
         for (size_t x = 0; x < maze.width; ++x) {
             size_t i = y * maze.width + x;
             size_t strI = strWidth * (2 * y + 1) + 2 * x + 1;
 
-			if (str[strI] == '.') {
-				maze.cells[i].visited = 1;
-			} else {
-				maze.cells[i].visited = 0;
-			}
+            if (str[strI] == '.') {
+                maze.cells[i].visited = 1;
+            } else {
+                maze.cells[i].visited = 0;
+            }
 
-			if (str[strI] == '*') {
-				maze.cells[i].path = 1;
-				maze.cells[i].visited = 1;
-			} else {
-				maze.cells[i].path = 0;
-			}
+            if (str[strI] == '*') {
+                maze.cells[i].path = 1;
+                maze.cells[i].visited = 1;
+            } else {
+                maze.cells[i].path = 0;
+            }
 
-            if (str[strI] == 'S' ||str[strI] == 's') {
+            if (str[strI] == 'S' || str[strI] == 's') {
                 maze.cells[i].start = 1;
                 maze.cells[i].stop = 0;
-            } else if (str[strI] == 'X' ||str[strI] == 'x') {
+            } else if (str[strI] == 'X' || str[strI] == 'x') {
                 maze.cells[i].start = 0;
                 maze.cells[i].stop = 1;
             } else {
@@ -65,7 +65,7 @@ Maze_t createMaze(const char *str) {
         }
     }
 
-	maze.str = strdup(str);
+    maze.str = strdup(str);
 
     return maze;
 }
@@ -114,35 +114,35 @@ Maze_t importMaze(FILE *stream) {
 
     buf[sz++] = '\0';
 
-	maze = createMaze(buf);
+    maze = createMaze(buf);
 
-	free(buf);
+    free(buf);
 
     return maze;
 }
 
 Point_t findStart(Maze_t maze) {
-	for (uint32_t y = 0; y < maze.height; y++) {
-		for (uint32_t x = 0; x < maze.width; x++) {
-			if (maze.cells[y * maze.width + x].start) {
-				return (Point_t){x, y};
-			}
-		}
-	}
+    for (uint32_t y = 0; y < maze.height; y++) {
+        for (uint32_t x = 0; x < maze.width; x++) {
+            if (maze.cells[y * maze.width + x].start) {
+                return (Point_t){x, y};
+            }
+        }
+    }
 
-	return (Point_t){UINT32_MAX, UINT32_MAX};
+    return (Point_t){UINT32_MAX, UINT32_MAX};
 }
 
 Point_t findStop(Maze_t maze) {
-	for (uint32_t y = 0; y < maze.height; y++) {
-		for (uint32_t x = 0; x < maze.width; x++) {
-			if (maze.cells[y * maze.width + x].stop) {
-				return (Point_t){x, y};
-			}
-		}
-	}
+    for (uint32_t y = 0; y < maze.height; y++) {
+        for (uint32_t x = 0; x < maze.width; x++) {
+            if (maze.cells[y * maze.width + x].stop) {
+                return (Point_t){x, y};
+            }
+        }
+    }
 
-	return (Point_t){UINT32_MAX, UINT32_MAX};
+    return (Point_t){UINT32_MAX, UINT32_MAX};
 }
 
 Point_t pointShift(Point_t point, Direction_t direction) {
@@ -180,17 +180,17 @@ bool isSameTree(Tree_t *tree1, Tree_t *tree2) {
 bool solveMaze(Maze_t *maze, Point_t start, Point_t stop) {
     size_t i = start.y * maze->width + start.x;
 
-	maze->cells[i].visited = 1;
+    maze->cells[i].visited = 1;
 
     if (start.x == stop.x && start.y == stop.y) {
-		maze->cells[i].path = 1;
+        maze->cells[i].path = 1;
         return true;
     }
 
     if (start.y > 0 && maze->cells[i].top == 0 &&
         maze->cells[i - maze->width].visited == 0) {
         if (solveMaze(maze, (Point_t){start.x, start.y - 1}, stop)) {
-			maze->cells[i].path = 1;
+            maze->cells[i].path = 1;
             return true;
         }
     }
@@ -198,7 +198,7 @@ bool solveMaze(Maze_t *maze, Point_t start, Point_t stop) {
     if (start.y < maze->height - 1 && maze->cells[i].bottom == 0 &&
         maze->cells[i + maze->width].visited == 0) {
         if (solveMaze(maze, (Point_t){start.x, start.y + 1}, stop)) {
-			maze->cells[i].path = 1;
+            maze->cells[i].path = 1;
             return true;
         }
     }
@@ -206,7 +206,7 @@ bool solveMaze(Maze_t *maze, Point_t start, Point_t stop) {
     if (start.x > 0 && maze->cells[i].left == 0 &&
         maze->cells[i - 1].visited == 0) {
         if (solveMaze(maze, (Point_t){start.x - 1, start.y}, stop)) {
-			maze->cells[i].path = 1;
+            maze->cells[i].path = 1;
             return true;
         }
     }
@@ -214,7 +214,7 @@ bool solveMaze(Maze_t *maze, Point_t start, Point_t stop) {
     if (start.x < maze->width - 1 && maze->cells[i].right == 0 &&
         maze->cells[i + 1].visited == 0) {
         if (solveMaze(maze, (Point_t){start.x + 1, start.y}, stop)) {
-			maze->cells[i].path = 1;
+            maze->cells[i].path = 1;
             return true;
         }
     }
@@ -222,50 +222,55 @@ bool solveMaze(Maze_t *maze, Point_t start, Point_t stop) {
     return false;
 }
 
-bool solveMazeWithSteps(Maze_t *maze, Point_t start, Point_t stop, FILE *stream) {
+bool solveMazeWithSteps(Maze_t *maze, Point_t start, Point_t stop,
+                        FILE *stream) {
     size_t i = start.y * maze->width + start.x;
 
-	maze->cells[i].visited = 1;
-	fprintStep(stream, maze);
+    maze->cells[i].visited = 1;
+    fprintStep(stream, maze);
 
     if (start.x == stop.x && start.y == stop.y) {
-		maze->cells[i].path = 1;
-		fprintStep(stream, maze);
+        maze->cells[i].path = 1;
+        fprintStep(stream, maze);
         return true;
     }
 
     if (start.y > 0 && maze->cells[i].top == 0 &&
         maze->cells[i - maze->width].visited == 0) {
-        if (solveMazeWithSteps(maze, (Point_t){start.x, start.y - 1}, stop, stream)) {
-			maze->cells[i].path = 1;
-			fprintStep(stream, maze);
+        if (solveMazeWithSteps(maze, (Point_t){start.x, start.y - 1}, stop,
+                               stream)) {
+            maze->cells[i].path = 1;
+            fprintStep(stream, maze);
             return true;
         }
     }
 
     if (start.y < maze->height - 1 && maze->cells[i].bottom == 0 &&
         maze->cells[i + maze->width].visited == 0) {
-        if (solveMazeWithSteps(maze, (Point_t){start.x, start.y + 1}, stop, stream)) {
-			maze->cells[i].path = 1;
-			fprintStep(stream, maze);
+        if (solveMazeWithSteps(maze, (Point_t){start.x, start.y + 1}, stop,
+                               stream)) {
+            maze->cells[i].path = 1;
+            fprintStep(stream, maze);
             return true;
         }
     }
 
     if (start.x > 0 && maze->cells[i].left == 0 &&
         maze->cells[i - 1].visited == 0) {
-        if (solveMazeWithSteps(maze, (Point_t){start.x - 1, start.y}, stop, stream)) {
-			maze->cells[i].path = 1;
-			fprintStep(stream, maze);
+        if (solveMazeWithSteps(maze, (Point_t){start.x - 1, start.y}, stop,
+                               stream)) {
+            maze->cells[i].path = 1;
+            fprintStep(stream, maze);
             return true;
         }
     }
 
     if (start.x < maze->width - 1 && maze->cells[i].right == 0 &&
         maze->cells[i + 1].visited == 0) {
-        if (solveMazeWithSteps(maze, (Point_t){start.x + 1, start.y}, stop, stream)) {
-			maze->cells[i].path = 1;
-			fprintStep(stream, maze);
+        if (solveMazeWithSteps(maze, (Point_t){start.x + 1, start.y}, stop,
+                               stream)) {
+            maze->cells[i].path = 1;
+            fprintStep(stream, maze);
             return true;
         }
     }
@@ -274,17 +279,17 @@ bool solveMazeWithSteps(Maze_t *maze, Point_t start, Point_t stop, FILE *stream)
 }
 
 static char getCellPathChar(Cell_t cell1, Cell_t cell2) {
-	char c = ' ';
+    char c = ' ';
 
-	if (cell1.visited && cell2.visited) {
-		c = '.';
-	}
+    if (cell1.visited && cell2.visited) {
+        c = '.';
+    }
 
-	if (cell1.path && cell2.path) {
-		c = '*';
-	}
+    if (cell1.path && cell2.path) {
+        c = '*';
+    }
 
-	return c;
+    return c;
 }
 
 char *graphToString(Cell_t *cells, size_t width, size_t height) {
@@ -336,12 +341,14 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
             str[strI] = ' ';
 
             if (cells[i].top == 0) {
-                str[strI - strWidth] = getCellPathChar(cells[i], cells[i - width]);
+                str[strI - strWidth] =
+                    getCellPathChar(cells[i], cells[i - width]);
             }
 
             if (cells[i].bottom == 0) {
-                str[strI + strWidth] = getCellPathChar(cells[i], cells[i + width]);
-			}
+                str[strI + strWidth] =
+                    getCellPathChar(cells[i], cells[i + width]);
+            }
 
             if (cells[i].left == 0) {
                 str[strI - 1] = getCellPathChar(cells[i], cells[i - 1]);
@@ -351,13 +358,13 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
                 str[strI + 1] = getCellPathChar(cells[i], cells[i + 1]);
             }
 
-			if (cells[i].visited) {
-				str[strI] = '.';
-			}
+            if (cells[i].visited) {
+                str[strI] = '.';
+            }
 
-			if (cells[i].path) {
-				str[strI] = '*';
-			}
+            if (cells[i].path) {
+                str[strI] = '*';
+            }
 
             if (cells[i].start == 1) {
                 str[strI] = cells[i].visited == 1 ? 's' : 'S';
@@ -380,7 +387,7 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
     return str;
 }
 
-void fprintStep(FILE *stream, Maze_t *maze) {
+void fprintStep(FILE *restrict stream, Maze_t *maze) {
     char *str = graphToString(maze->cells, maze->width, maze->height);
     fputs(str, stream);
     fputc('\n', stream);
@@ -392,7 +399,17 @@ void freeMaze(Maze_t maze) {
     free(maze.cells);
 }
 
-void generateMaze(Maze_t *maze) {
+void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
+    switch (algorithm) {
+        case kruskal:
+			kruskalGen(maze);
+			break;
+        case INVALID_ALGORITHM:
+            break;
+    }
+}
+
+void kruskalGen(Maze_t *maze) {
     size_t sz = maze->width * maze->height;
     Edge_t *edges = malloc(sizeof(*edges) * sz * 2);
     size_t edgeCount = 0;
@@ -492,7 +509,169 @@ void generateMaze(Maze_t *maze) {
     maze->str = graphToString(maze->cells, maze->width, maze->height);
 }
 
-void generateMazeWithSteps(Maze_t *maze, FILE *stream) {
+void primGen(Maze_t *maze) {
+    size_t sz = maze->width * maze->height;
+	size_t startI;
+	ssize_t frontierSz = 0;
+    Tree_t *trees = malloc(sizeof(*trees) * sz);
+	Tree_t *frontiers = malloc(sizeof(*trees) * sz);
+    Point_t start, stop, cellPt;
+	div_t division;
+
+    for (size_t i = 0; i < sz; i++) {
+        // div_t division = div(i, maze->width);
+        // Point_t pt = {division.rem, division.quot};
+        trees[i] = (Tree_t){i, NULL, NULL, NULL};
+    }
+
+    srand(time(NULL));
+
+	// random starting cell
+	startI = rand() % sz;
+
+	// Get initial frontiers
+	division  = div(trees[startI].val, maze->width);
+	cellPt.x = division.rem;
+	cellPt.y = division.quot;
+
+	if (cellPt.x > 0) {
+		size_t i = startI - 1;
+		frontiers[frontierSz++] = trees[i];
+	}
+
+	if (cellPt.x < maze->width - 1) {
+		size_t i = startI + 1;
+		frontiers[frontierSz++] = trees[i];
+	}
+
+	if (cellPt.y > 0) {
+		size_t i = startI - maze->width;
+		frontiers[frontierSz++] = trees[i];
+	}
+
+	if (cellPt.y < maze->height - 1) {
+		size_t i = startI + maze->width;
+		frontiers[frontierSz++] = trees[i];
+	}
+
+	while (frontierSz != 0) {
+		size_t randI = rand() % frontierSz;
+		Tree_t potCells[4];
+		size_t potSz = 0;
+		size_t randCellI;
+		Point_t cellPt2;
+		size_t cell1 = 0;
+		size_t cell2 = 0;
+
+		division = div(frontiers[randI].val, maze->width);
+		cellPt.x = division.rem;
+		cellPt.y = division.quot;
+
+		// find cells in maze adjacent to the current frontier cell
+		if (cellPt.x > 0) {
+			size_t i = randI - 1;
+			if (isSameTree(trees + startI, trees + i)) {
+				potCells[potSz++] = trees[i];
+			}
+		}
+
+		if (cellPt.x < maze->width - 1) {
+			size_t i = randI + 1;
+			if (isSameTree(trees + startI, trees + i)) {
+				potCells[potSz++] = trees[i];
+			}
+		}
+
+		if (cellPt.y > 0) {
+			size_t i = randI - maze->width;
+			if (isSameTree(trees + startI, trees + i)) {
+				potCells[potSz++] = trees[i];
+			}
+		}
+
+		if (cellPt.y < maze->height - 1) {
+			size_t i = randI + maze->width;
+			if (isSameTree(trees + startI, trees + i)) {
+				potCells[potSz++] = trees[i];
+			}
+		}
+
+		// pick a random maze cell
+		randCellI = potCells[rand() % potSz].val;
+
+		// join edges
+		division = div(randCellI, maze->width);
+		cellPt2.x = division.rem;
+		cellPt2.y = division.quot;
+
+		cell1 = trees[frontiers[randI].val].val;
+		cell2 = trees[randCellI].val;
+		if (cellPt.x != cellPt2.x) {
+			if (cellPt.x > cellPt2.x) {
+				maze->cells[cell1].left = 0;
+				maze->cells[cell2].right = 0;
+			} else {
+				maze->cells[cell1].right = 0;
+				maze->cells[cell2].left = 0;
+			}
+		} else {
+			if (cellPt.y > cellPt2.y) {
+				maze->cells[cell1].top = 0;
+				maze->cells[cell2].bottom = 0;
+			} else {
+				maze->cells[cell1].bottom = 0;
+				maze->cells[cell2].top = 0;
+			}
+		}
+
+		// remove frontier
+		for (size_t i = randI; i < frontierSz - 2; i++) {
+			frontiers[i] = frontiers[i + 1];
+		}
+		frontierSz--;
+	}
+
+    // assign start and stop location
+    if (rand() % 2 == 0) {
+        start.x = rand() % maze->width;
+        stop.x = rand() % maze->width;
+        if (rand() % 2 == 0) {
+            start.y = 0;
+            stop.y = maze->height - 1;
+        } else {
+            start.y = maze->height - 1;
+            stop.y = 0;
+        }
+    } else {
+        start.y = rand() % maze->height;
+        stop.y = rand() % maze->height;
+        if (rand() % 2 == 0) {
+            start.x = 0;
+            stop.x = maze->width - 1;
+        } else {
+            start.x = maze->width - 1;
+            stop.x = 0;
+        }
+    }
+
+    maze->cells[start.y * maze->width + start.x].start = 1;
+    maze->cells[stop.y * maze->width + stop.x].stop = 1;
+
+    // stringify
+    maze->str = graphToString(maze->cells, maze->width, maze->height);
+}
+
+void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm, FILE *restrict stream) {
+    switch (algorithm) {
+        case kruskal:
+			kruskalGenWithSteps(maze, stream);
+			break;
+        case INVALID_ALGORITHM:
+            break;
+    }
+}
+
+void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
     size_t sz = maze->width * maze->height;
     Edge_t *edges = malloc(sizeof(*edges) * sz * 2);
     size_t edgeCount = 0;
@@ -616,4 +795,12 @@ void joinTrees(Tree_t *head, Tree_t *node) {
             joinTrees(head->right, node);
         }
     }
+}
+
+genAlgo_t strToGenAlgo(const char *str) {
+    if (strcmp(str, "kruskal") == 0) {
+        return kruskal;
+    }
+
+    return INVALID_ALGORITHM;
 }

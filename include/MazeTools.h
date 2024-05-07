@@ -28,10 +28,10 @@ typedef struct {
 } Edge_t;
 
 typedef struct Tree_t {
-	int val;
-	struct Tree_t *parent;
-	struct Tree_t *left;
-	struct Tree_t *right;
+    int val;
+    struct Tree_t *parent;
+    struct Tree_t *left;
+    struct Tree_t *right;
 } Tree_t;
 
 typedef struct {
@@ -39,9 +39,9 @@ typedef struct {
         uint32_t walls;
         struct {
             unsigned blank : 24;
-			unsigned path : 1;
-			unsigned start : 1;
-			unsigned stop : 1;
+            unsigned path : 1;
+            unsigned start : 1;
+            unsigned stop : 1;
             unsigned visited : 1;
             unsigned top : 1;
             unsigned bottom : 1;
@@ -57,6 +57,8 @@ typedef struct {
     char *str;
     Cell_t *cells;
 } Maze_t;
+
+typedef enum { kruskal, INVALID_ALGORITHM } genAlgo_t;
 
 /** @brief Creates a maze from a string
  *
@@ -153,7 +155,8 @@ bool solveMaze(Maze_t *maze, Point_t start, Point_t stop);
  * @param stream The stream to write to.
  * @return True if the maze was solved.
  */
-bool solveMazeWithSteps(Maze_t *maze, Point_t start, Point_t stop, FILE *stream);
+bool solveMazeWithSteps(Maze_t *maze, Point_t start, Point_t stop,
+                        FILE *stream);
 
 /**@brief Converts a grid of cells into a string.
  *
@@ -170,7 +173,7 @@ char *graphToString(Cell_t *cells, size_t width, size_t height);
  * @param maze The maze to write.
  * @return void
  */
-void fprintStep(FILE *stream, Maze_t *maze);
+void fprintStep(FILE *restrict stream, Maze_t *maze);
 
 /**@brief Frees a maze.
  *
@@ -185,9 +188,14 @@ void freeMaze(Maze_t maze);
  * This function works by removing walls until a completed maze is generated.
  *
  * @param maze The maze to manipulate.
+ * @param algorithm The algorithm used for generation.
  * @return void
  */
-void generateMaze(Maze_t *maze);
+void generateMaze(Maze_t *maze, genAlgo_t algorithm);
+
+void kruskalGen(Maze_t *maze);
+
+void primGen(Maze_t *maze);
 
 /**@brief Generates a maze and writes the steps.
  *
@@ -196,10 +204,15 @@ void generateMaze(Maze_t *maze);
  * This function will write each time a wall is removed.
  *
  * @param maze The maze to manipulate.
+ * @param algorithm The algorithm used for generation.
  * @param stream The stream to write to.
  * @return void
  */
-void generateMazeWithSteps(Maze_t *maze, FILE *stream);
+void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm, FILE *restrict stream);
+
+void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream);
+
+void primGenWithSteps(Maze_t *maze, FILE *restrict stream);
 
 /**@brief Join two trees together.
  *
@@ -208,5 +221,12 @@ void generateMazeWithSteps(Maze_t *maze, FILE *stream);
  * @return void
  */
 void joinTrees(Tree_t *head, Tree_t *node);
+
+/**@brief Convert a string to a algorithm.
+ *
+ * @param str The string to convert.
+ * @return genAlgo_t The algorithm converted to.
+ */
+genAlgo_t strToGenAlgo(const char *str);
 
 #endif /* ifndef __MAZE_TOOLS_H__ */
