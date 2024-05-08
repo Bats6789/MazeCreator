@@ -70,18 +70,19 @@ int main(int argc, char *argv[]) {
 
             case 'a': {
                 size_t len = strlen(optarg);
-                userChoice = malloc(sizeof(*userChoice) * len);
+                userChoice = malloc(sizeof(*userChoice) * (len + 1));
 
                 for (size_t i = 0; i < len; i++) {
                     userChoice[i] = tolower(optarg[i]);
                 }
+				userChoice[len] = '\0';
             }
 
                 algorithm = strToGenAlgo(userChoice);
                 if (algorithm == INVALID_ALGORITHM) {
                     printError("ERROR: %s is not a valid algorithm\n", optarg);
                     help();
-                    return EXIT_SUCCESS;
+                    return EXIT_FAILURE;
                 } else {
 					foundAlgo = true;
 				}
@@ -215,6 +216,7 @@ void help() {
     puts("");
     puts("Algorithms:");
 	puts("  Kruskal");
+	puts("  Prim");
 }
 
 int printError(const char *frmt, ...) {

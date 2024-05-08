@@ -38,7 +38,8 @@ typedef struct {
     union {
         uint32_t walls;
         struct {
-            unsigned blank : 24;
+            unsigned blank : 23;
+			unsigned observing : 1;
             unsigned path : 1;
             unsigned start : 1;
             unsigned stop : 1;
@@ -58,7 +59,7 @@ typedef struct {
     Cell_t *cells;
 } Maze_t;
 
-typedef enum { kruskal, INVALID_ALGORITHM } genAlgo_t;
+typedef enum { kruskal, prim, INVALID_ALGORITHM } genAlgo_t;
 
 /** @brief Creates a maze from a string
  *
@@ -213,6 +214,8 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm, FILE *restrict str
 void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream);
 
 void primGenWithSteps(Maze_t *maze, FILE *restrict stream);
+
+Tree_t *removeNode(Tree_t **head, int val);
 
 /**@brief Join two trees together.
  *

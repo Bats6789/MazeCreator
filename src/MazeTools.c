@@ -47,6 +47,8 @@ Maze_t createMaze(const char *str) {
                 maze.cells[i].path = 0;
             }
 
+			maze.cells[i].observing = str[strI] == ':' ? 1 : 0;
+
             if (str[strI] == 'S' || str[strI] == 's') {
                 maze.cells[i].start = 1;
                 maze.cells[i].stop = 0;
@@ -89,6 +91,7 @@ Maze_t createMazeWH(size_t width, size_t height) {
         maze.cells[i].stop = 0;
         maze.cells[i].visited = 0;
         maze.cells[i].path = 0;
+        maze.cells[i].observing = 0;
     }
 
     return maze;
@@ -164,6 +167,7 @@ Tree_t *getHead(Tree_t *tree) {
     if (!tree) return tree;
 
     while (tree->parent != NULL) {
+		// printf("%p -> %p\n", tree, tree->parent);
         tree = tree->parent;
     }
 
@@ -358,6 +362,10 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
                 str[strI + 1] = getCellPathChar(cells[i], cells[i + 1]);
             }
 
+			if (cells[i].observing) {
+				str[strI] = ':';
+			}
+
             if (cells[i].visited) {
                 str[strI] = '.';
             }
@@ -402,8 +410,11 @@ void freeMaze(Maze_t maze) {
 void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
     switch (algorithm) {
         case kruskal:
-			kruskalGen(maze);
-			break;
+            kruskalGen(maze);
+            break;
+        case prim:
+            primGen(maze);
+            break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -509,14 +520,28 @@ void kruskalGen(Maze_t *maze) {
     maze->str = graphToString(maze->cells, maze->width, maze->height);
 }
 
+static bool addUniqueFrontier(Tree_t *frontiers, size_t sz, Tree_t tree) {
+	bool found = false;
+
+	for (size_t i = 0; i < sz && !found; i++) {
+		found = frontiers[i].val == tree.val;
+	}
+
+	if (!found) {
+		frontiers[sz] = tree;
+	}
+
+	return !found;
+}
+
 void primGen(Maze_t *maze) {
     size_t sz = maze->width * maze->height;
-	size_t startI;
-	ssize_t frontierSz = 0;
+    size_t startI;
+    ssize_t frontierSz = 0;
     Tree_t *trees = malloc(sizeof(*trees) * sz);
-	Tree_t *frontiers = malloc(sizeof(*trees) * sz);
+    Tree_t *frontiers = malloc(sizeof(*trees) * sz);
     Point_t start, stop, cellPt;
-	div_t division;
+    div_t division;
 
     for (size_t i = 0; i < sz; i++) {
         // div_t division = div(i, maze->width);
@@ -526,110 +551,122 @@ void primGen(Maze_t *maze) {
 
     srand(time(NULL));
 
-	// random starting cell
-	startI = rand() % sz;
+    // random starting cell
+    startI = rand() % sz;
 
-	// Get initial frontiers
-	division  = div(trees[startI].val, maze->width);
-	cellPt.x = division.rem;
-	cellPt.y = division.quot;
+    // Get initial frontiers
+    division = div(startI, maze->width);
+    cellPt.x = division.rem;
+    cellPt.y = division.quot;
 
-	if (cellPt.x > 0) {
-		size_t i = startI - 1;
-		frontiers[frontierSz++] = trees[i];
-	}
+    if (cellPt.x > 0) {
+        frontiers[frontierSz++] = trees[startI - 1];
+    }
 
-	if (cellPt.x < maze->width - 1) {
-		size_t i = startI + 1;
-		frontiers[frontierSz++] = trees[i];
-	}
+    if (cellPt.x < maze->width - 1) {
+        frontiers[frontierSz++] = trees[startI + 1];
+    }
 
-	if (cellPt.y > 0) {
-		size_t i = startI - maze->width;
-		frontiers[frontierSz++] = trees[i];
-	}
+    if (cellPt.y > 0) {
+        frontiers[frontierSz++] = trees[startI - maze->width];
+    }
 
-	if (cellPt.y < maze->height - 1) {
-		size_t i = startI + maze->width;
-		frontiers[frontierSz++] = trees[i];
-	}
+    if (cellPt.y < maze->height - 1) {
+        frontiers[frontierSz++] = trees[startI + maze->width];
+    }
 
-	while (frontierSz != 0) {
-		size_t randI = rand() % frontierSz;
-		Tree_t potCells[4];
-		size_t potSz = 0;
-		size_t randCellI;
-		Point_t cellPt2;
-		size_t cell1 = 0;
-		size_t cell2 = 0;
+	// evaluate frontiers
+    while (frontierSz > 0) {
+        ssize_t randI = rand() % frontierSz;
+        size_t frontierI = frontiers[randI].val;
+        Tree_t potCells[4];
+        size_t potSz = 0;
+        size_t randPotCellI = 0;
+        Point_t cellPt2 = {0, 0};
 
-		division = div(frontiers[randI].val, maze->width);
-		cellPt.x = division.rem;
-		cellPt.y = division.quot;
+        division = div(frontierI, maze->width);
+        cellPt.x = division.rem;
+        cellPt.y = division.quot;
 
-		// find cells in maze adjacent to the current frontier cell
-		if (cellPt.x > 0) {
-			size_t i = randI - 1;
-			if (isSameTree(trees + startI, trees + i)) {
-				potCells[potSz++] = trees[i];
+        // find cells in maze adjacent to the current frontier cell
+        if (cellPt.x > 0) {
+            size_t i = frontierI - 1;
+            if (isSameTree(trees + startI, trees + i)) {
+                potCells[potSz++] = trees[i];
+            } else {
+				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
+					frontierSz++;
+				}
 			}
-		}
+        }
 
-		if (cellPt.x < maze->width - 1) {
-			size_t i = randI + 1;
-			if (isSameTree(trees + startI, trees + i)) {
-				potCells[potSz++] = trees[i];
+        if (cellPt.x < maze->width - 1) {
+            size_t i = frontierI + 1;
+            if (isSameTree(trees + startI, trees + i)) {
+                potCells[potSz++] = trees[i];
+            } else {
+				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
+					frontierSz++;
+				}
 			}
-		}
+        }
 
-		if (cellPt.y > 0) {
-			size_t i = randI - maze->width;
-			if (isSameTree(trees + startI, trees + i)) {
-				potCells[potSz++] = trees[i];
+        if (cellPt.y > 0) {
+            size_t i = frontierI - maze->width;
+            if (isSameTree(trees + startI, trees + i)) {
+                potCells[potSz++] = trees[i];
+            } else {
+				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
+					frontierSz++;
+				}
 			}
-		}
+        }
 
-		if (cellPt.y < maze->height - 1) {
-			size_t i = randI + maze->width;
-			if (isSameTree(trees + startI, trees + i)) {
-				potCells[potSz++] = trees[i];
+        if (cellPt.y < maze->height - 1) {
+            size_t i = frontierI + maze->width;
+            if (isSameTree(trees + startI, trees + i)) {
+                potCells[potSz++] = trees[i];
+            } else {
+				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
+					frontierSz++;
+				}
 			}
-		}
+        }
 
-		// pick a random maze cell
-		randCellI = potCells[rand() % potSz].val;
+        // pick a random maze cell
+        randPotCellI = potCells[rand() % potSz].val;
 
-		// join edges
-		division = div(randCellI, maze->width);
-		cellPt2.x = division.rem;
-		cellPt2.y = division.quot;
+        // join edges
+        division = div(randPotCellI, maze->width);
+        cellPt2.x = division.rem;
+        cellPt2.y = division.quot;
 
-		cell1 = trees[frontiers[randI].val].val;
-		cell2 = trees[randCellI].val;
-		if (cellPt.x != cellPt2.x) {
-			if (cellPt.x > cellPt2.x) {
-				maze->cells[cell1].left = 0;
-				maze->cells[cell2].right = 0;
-			} else {
-				maze->cells[cell1].right = 0;
-				maze->cells[cell2].left = 0;
-			}
-		} else {
-			if (cellPt.y > cellPt2.y) {
-				maze->cells[cell1].top = 0;
-				maze->cells[cell2].bottom = 0;
-			} else {
-				maze->cells[cell1].bottom = 0;
-				maze->cells[cell2].top = 0;
-			}
-		}
+        if (cellPt.x != cellPt2.x) {
+            if (cellPt.x > cellPt2.x) {
+                maze->cells[frontierI].left = 0;
+                maze->cells[randPotCellI].right = 0;
+            } else {
+                maze->cells[frontierI].right = 0;
+                maze->cells[randPotCellI].left = 0;
+            }
+        } else {
+            if (cellPt.y > cellPt2.y) {
+                maze->cells[frontierI].top = 0;
+                maze->cells[randPotCellI].bottom = 0;
+            } else {
+                maze->cells[frontierI].bottom = 0;
+                maze->cells[randPotCellI].top = 0;
+            }
+        }
 
-		// remove frontier
-		for (size_t i = randI; i < frontierSz - 2; i++) {
-			frontiers[i] = frontiers[i + 1];
-		}
-		frontierSz--;
-	}
+		joinTrees(trees + startI, trees + frontierI);
+
+        // remove frontier
+        for (ssize_t i = randI; i < frontierSz - 1; i++) {
+            frontiers[i] = frontiers[i + 1];
+        }
+        frontierSz--;
+    }
 
     // assign start and stop location
     if (rand() % 2 == 0) {
@@ -661,10 +698,14 @@ void primGen(Maze_t *maze) {
     maze->str = graphToString(maze->cells, maze->width, maze->height);
 }
 
-void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm, FILE *restrict stream) {
+void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
+                           FILE *restrict stream) {
     switch (algorithm) {
         case kruskal:
-			kruskalGenWithSteps(maze, stream);
+            kruskalGenWithSteps(maze, stream);
+            break;
+		case prim:
+			primGenWithSteps(maze, stream);
 			break;
         case INVALID_ALGORITHM:
             break;
@@ -773,6 +814,239 @@ void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
     fputs(maze->str, stream);
 }
 
+void primGenWithSteps(Maze_t *maze, FILE *restrict stream) {
+    size_t sz = maze->width * maze->height;
+    size_t startI;
+    ssize_t frontierSz = 0;
+    Tree_t *trees = malloc(sizeof(*trees) * sz);
+    Tree_t *frontiers = malloc(sizeof(*trees) * sz);
+    Point_t start, stop, cellPt;
+    div_t division;
+
+    for (size_t i = 0; i < sz; i++) {
+        // div_t division = div(i, maze->width);
+        // Point_t pt = {division.rem, division.quot};
+        trees[i] = (Tree_t){i, NULL, NULL, NULL};
+    }
+
+    srand(time(NULL));
+
+    // random starting cell
+    startI = rand() % sz;
+
+    // Get initial frontiers
+    division = div(startI, maze->width);
+    cellPt.x = division.rem;
+    cellPt.y = division.quot;
+
+    if (cellPt.x > 0) {
+        frontiers[frontierSz++] = trees[startI - 1];
+		maze->cells[startI - 1].observing = 1;
+    }
+
+    if (cellPt.x < maze->width - 1) {
+        frontiers[frontierSz++] = trees[startI + 1];
+		maze->cells[startI + 1].observing = 1;
+    }
+
+    if (cellPt.y > 0) {
+        frontiers[frontierSz++] = trees[startI - maze->width];
+		maze->cells[startI - maze->width].observing = 1;
+    }
+
+    if (cellPt.y < maze->height - 1) {
+        frontiers[frontierSz++] = trees[startI + maze->width];
+		maze->cells[startI + maze->width].observing = 1;
+    }
+
+	fprintStep(stream, maze);
+
+	// evaluate frontiers
+    while (frontierSz != 0) {
+        size_t randI = rand() % frontierSz;
+        size_t frontierI = frontiers[randI].val;
+        Tree_t potCells[4];
+        size_t potSz = 0;
+        size_t randPotCellI = 0;
+        Point_t cellPt2 = {0, 0};
+
+        division = div(frontierI, maze->width);
+        cellPt.x = division.rem;
+        cellPt.y = division.quot;
+
+        // find cells in maze adjacent to the current frontier cell
+        if (cellPt.x > 0) {
+            size_t i = frontierI - 1;
+            if (isSameTree(trees + startI, trees + i)) {
+                potCells[potSz++] = trees[i];
+			} else {
+				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
+					frontierSz++;
+					maze->cells[i].observing = 1;
+				}
+			}
+        }
+
+        if (cellPt.x < maze->width - 1) {
+            size_t i = frontierI + 1;
+            if (isSameTree(trees + startI, trees + i)) {
+                potCells[potSz++] = trees[i];
+            } else {
+				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
+					frontierSz++;
+					maze->cells[i].observing = 1;
+				}
+			}
+        }
+
+        if (cellPt.y > 0) {
+            size_t i = frontierI - maze->width;
+            if (isSameTree(trees + startI, trees + i)) {
+                potCells[potSz++] = trees[i];
+            } else {
+				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
+					frontierSz++;
+					maze->cells[i].observing = 1;
+				}
+			}
+        }
+
+        if (cellPt.y < maze->height - 1) {
+            size_t i = frontierI + maze->width;
+            if (isSameTree(trees + startI, trees + i)) {
+                potCells[potSz++] = trees[i];
+            } else {
+				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
+					frontierSz++;
+					maze->cells[i].observing = 1;
+				}
+			}
+        }
+
+        // pick a random maze cell
+        randPotCellI = potCells[rand() % potSz].val;
+
+        // join edges
+        division = div(randPotCellI, maze->width);
+        cellPt2.x = division.rem;
+        cellPt2.y = division.quot;
+
+        if (cellPt.x != cellPt2.x) {
+            if (cellPt.x > cellPt2.x) {
+                maze->cells[frontierI].left = 0;
+                maze->cells[randPotCellI].right = 0;
+            } else {
+                maze->cells[frontierI].right = 0;
+                maze->cells[randPotCellI].left = 0;
+            }
+        } else {
+            if (cellPt.y > cellPt2.y) {
+                maze->cells[frontierI].top = 0;
+                maze->cells[randPotCellI].bottom = 0;
+            } else {
+                maze->cells[frontierI].bottom = 0;
+                maze->cells[randPotCellI].top = 0;
+            }
+        }
+		maze->cells[frontierI].observing = 0;
+
+		joinTrees(trees + startI, trees + frontierI);
+
+		fprintStep(stream, maze);
+
+        // remove frontier
+        for (ssize_t i = randI; i < frontierSz - 1; i++) {
+            frontiers[i] = frontiers[i + 1];
+        }
+        frontierSz--;
+    }
+
+    // assign start and stop location
+    if (rand() % 2 == 0) {
+        start.x = rand() % maze->width;
+        stop.x = rand() % maze->width;
+        if (rand() % 2 == 0) {
+            start.y = 0;
+            stop.y = maze->height - 1;
+        } else {
+            start.y = maze->height - 1;
+            stop.y = 0;
+        }
+    } else {
+        start.y = rand() % maze->height;
+        stop.y = rand() % maze->height;
+        if (rand() % 2 == 0) {
+            start.x = 0;
+            stop.x = maze->width - 1;
+        } else {
+            start.x = maze->width - 1;
+            stop.x = 0;
+        }
+    }
+
+    maze->cells[start.y * maze->width + start.x].start = 1;
+	fprintStep(stream, maze);
+    maze->cells[stop.y * maze->width + stop.x].stop = 1;
+
+    // stringify
+    maze->str = graphToString(maze->cells, maze->width, maze->height);
+	fputs(maze->str, stream);
+}
+
+Tree_t *removeNode(Tree_t **head, int val) {
+	Tree_t *node = *head;
+	Tree_t *left, *right, *parent;
+
+	while (!node && node->val != val) {
+		if (node->val < val) {
+			node = node->right;
+		} else {
+			node = node->left;
+		}
+	}
+
+	if (!node) {
+		left = node->left;
+		right = node->right;
+		parent = node->parent;
+
+		node->parent = NULL;
+		node->left = NULL;
+		node->right = NULL;
+
+		// node is the head node
+		if (!parent) {
+			if (!left) {
+				*head = left;
+				left->parent = NULL;
+				joinTrees(*head, right);
+			} else {
+				right->parent = NULL;
+				*head = right;
+			}
+		// node is the parents left node
+		} else if (parent->left == node) {
+			parent->left = NULL;
+		// node is the parents right node
+		} else {
+			parent->right = NULL;
+		}
+
+		// The next to ifs only run when node was not the head node
+		if (parent && !left) {
+			left->parent = NULL;
+			joinTrees(parent, left);
+		}
+
+		if (parent && !right) {
+			right->parent = NULL;
+			joinTrees(parent, right);
+		}
+	}
+
+	return node;
+}
+
 void joinTrees(Tree_t *head, Tree_t *node) {
     if (!head || !node) {
         return;
@@ -800,6 +1074,10 @@ void joinTrees(Tree_t *head, Tree_t *node) {
 genAlgo_t strToGenAlgo(const char *str) {
     if (strcmp(str, "kruskal") == 0) {
         return kruskal;
+    }
+
+    if (strcmp(str, "prim") == 0) {
+        return prim;
     }
 
     return INVALID_ALGORITHM;
