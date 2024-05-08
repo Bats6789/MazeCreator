@@ -51,6 +51,7 @@ The following symbols are defined for a maze:
 * space - Path
 * S     - Starting location
 * X     - Destination
+* :     - Observing
 
 ### Format
 A valid maze will have:
@@ -95,6 +96,12 @@ This is an example of four cells in a 2x2 formation:
 ```
 Notice that for a maze of size MxN, it takes (2*M+1)x(2*N+1) characters
 to store the maze.
+
+#### Notes:
+Oberving cells (:) only come into play for Prim's algorithm, and only during verbose
+step generation. The observing cell allows the user to see which cells the algorithm
+is currently considering for processing. It may have application for other algoritms
+in the future.
 
 ## TODO
 - [x] Maze Viewer (text based)
