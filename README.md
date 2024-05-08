@@ -98,6 +98,18 @@ to store the maze.
 
 ## TODO
 - [x] Maze Viewer (text based)
-- [x] Maze Generator
+- [ ] Maze Generator
+- - [x] [Kruskal](https://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm)
+- - [x] [Prim](https://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm)
+- - [ ] Recursive Backtracker
+- - [ ] Aldous-Broder
+- - [ ] Growing Tree
+- - [ ] Hunt-and-Kill
+- - [ ] Wilson
+- - [ ] Eller
+- - [ ] Recursive Division
+- - [ ] Sidewinder
+- - [ ] Binary Tree
+- - [ ] Cellular Automaton
 - [x] Verbose Steps
 - [x] Write Help
