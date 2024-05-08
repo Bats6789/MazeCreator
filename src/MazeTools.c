@@ -4,6 +4,8 @@
 #include <time.h>
 
 #include "MazeTools.h"
+#include "kruskal.h"
+#include "prim.h"
 
 Maze_t createMaze(const char *str) {
     Maze_t maze = {0, 0, NULL, NULL};
@@ -47,7 +49,7 @@ Maze_t createMaze(const char *str) {
                 maze.cells[i].path = 0;
             }
 
-			maze.cells[i].observing = str[strI] == ':' ? 1 : 0;
+            maze.cells[i].observing = str[strI] == ':' ? 1 : 0;
 
             if (str[strI] == 'S' || str[strI] == 's') {
                 maze.cells[i].start = 1;
@@ -167,7 +169,7 @@ Tree_t *getHead(Tree_t *tree) {
     if (!tree) return tree;
 
     while (tree->parent != NULL) {
-		// printf("%p -> %p\n", tree, tree->parent);
+        // printf("%p -> %p\n", tree, tree->parent);
         tree = tree->parent;
     }
 
@@ -362,9 +364,9 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
                 str[strI + 1] = getCellPathChar(cells[i], cells[i + 1]);
             }
 
-			if (cells[i].observing) {
-				str[strI] = ':';
-			}
+            if (cells[i].observing) {
+                str[strI] = ':';
+            }
 
             if (cells[i].visited) {
                 str[strI] = '.';
@@ -420,631 +422,72 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
     }
 }
 
-void kruskalGen(Maze_t *maze) {
-    size_t sz = maze->width * maze->height;
-    Edge_t *edges = malloc(sizeof(*edges) * sz * 2);
-    size_t edgeCount = 0;
-    Tree_t *trees = malloc(sizeof(*trees) * sz);
-    Point_t start, stop;
-
-    for (size_t i = 0; i < sz; i++) {
-        div_t division = div(i, maze->width);
-        Point_t pt = {division.rem, division.quot};
-
-        if (pt.y > 0) {
-            edges[edgeCount].point = pt;
-            edges[edgeCount++].dir = up;
-        }
-
-        if (pt.x > 0) {
-            edges[edgeCount].point = pt;
-            edges[edgeCount++].dir = left;
-        }
-
-        trees[i] = (Tree_t){i, NULL, NULL, NULL};
-    }
-
-    // shuffle
-    srand(time(NULL));
-    for (size_t j = 0; j < 2; j++) {
-        for (size_t i = 0; i < edgeCount; i++) {
-            int randI = rand() % edgeCount;
-            Edge_t tmp = edges[i];
-            edges[i] = edges[randI];
-            edges[randI] = tmp;
-        }
-    }
-
-    for (size_t i = 0; i < edgeCount; i++) {
-        Point_t point = edges[i].point;
-        size_t i1 = point.y * maze->width + point.x;
-        point = pointShift(point, edges[i].dir);
-        size_t i2 = point.y * maze->width + point.x;
-
-        // printf("Edge %zu: (%zu, %zu)\n", i, i1, i2);
-
-        if (!isSameTree(trees + i1, trees + i2)) {
-            switch (edges[i].dir) {
-                case up:
-                    maze->cells[i1].top = 0;
-                    maze->cells[i2].bottom = 0;
-                    break;
-                case down:
-                    maze->cells[i1].bottom = 0;
-                    maze->cells[i2].top = 0;
-                    break;
-                case left:
-                    maze->cells[i1].left = 0;
-                    maze->cells[i2].right = 0;
-                    break;
-                case right:
-                    maze->cells[i1].right = 0;
-                    maze->cells[i2].left = 0;
-                    break;
-            }
-
-            joinTrees(trees + i1, trees + i2);
-        }
-    }
-
-    free(trees);
-    free(edges);
-
-    // assign start and stop location
-    if (rand() % 2 == 0) {
-        start.x = rand() % maze->width;
-        stop.x = rand() % maze->width;
-        if (rand() % 2 == 0) {
-            start.y = 0;
-            stop.y = maze->height - 1;
-        } else {
-            start.y = maze->height - 1;
-            stop.y = 0;
-        }
-    } else {
-        start.y = rand() % maze->height;
-        stop.y = rand() % maze->height;
-        if (rand() % 2 == 0) {
-            start.x = 0;
-            stop.x = maze->width - 1;
-        } else {
-            start.x = maze->width - 1;
-            stop.x = 0;
-        }
-    }
-
-    maze->cells[start.y * maze->width + start.x].start = 1;
-    maze->cells[stop.y * maze->width + stop.x].stop = 1;
-
-    // stringify
-    maze->str = graphToString(maze->cells, maze->width, maze->height);
-}
-
-static bool addUniqueFrontier(Tree_t *frontiers, size_t sz, Tree_t tree) {
-	bool found = false;
-
-	for (size_t i = 0; i < sz && !found; i++) {
-		found = frontiers[i].val == tree.val;
-	}
-
-	if (!found) {
-		frontiers[sz] = tree;
-	}
-
-	return !found;
-}
-
-void primGen(Maze_t *maze) {
-    size_t sz = maze->width * maze->height;
-    size_t startI;
-    ssize_t frontierSz = 0;
-    Tree_t *trees = malloc(sizeof(*trees) * sz);
-    Tree_t *frontiers = malloc(sizeof(*trees) * sz);
-    Point_t start, stop, cellPt;
-    div_t division;
-
-    for (size_t i = 0; i < sz; i++) {
-        // div_t division = div(i, maze->width);
-        // Point_t pt = {division.rem, division.quot};
-        trees[i] = (Tree_t){i, NULL, NULL, NULL};
-    }
-
-    srand(time(NULL));
-
-    // random starting cell
-    startI = rand() % sz;
-
-    // Get initial frontiers
-    division = div(startI, maze->width);
-    cellPt.x = division.rem;
-    cellPt.y = division.quot;
-
-    if (cellPt.x > 0) {
-        frontiers[frontierSz++] = trees[startI - 1];
-    }
-
-    if (cellPt.x < maze->width - 1) {
-        frontiers[frontierSz++] = trees[startI + 1];
-    }
-
-    if (cellPt.y > 0) {
-        frontiers[frontierSz++] = trees[startI - maze->width];
-    }
-
-    if (cellPt.y < maze->height - 1) {
-        frontiers[frontierSz++] = trees[startI + maze->width];
-    }
-
-	// evaluate frontiers
-    while (frontierSz > 0) {
-        ssize_t randI = rand() % frontierSz;
-        size_t frontierI = frontiers[randI].val;
-        Tree_t potCells[4];
-        size_t potSz = 0;
-        size_t randPotCellI = 0;
-        Point_t cellPt2 = {0, 0};
-
-        division = div(frontierI, maze->width);
-        cellPt.x = division.rem;
-        cellPt.y = division.quot;
-
-        // find cells in maze adjacent to the current frontier cell
-        if (cellPt.x > 0) {
-            size_t i = frontierI - 1;
-            if (isSameTree(trees + startI, trees + i)) {
-                potCells[potSz++] = trees[i];
-            } else {
-				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
-					frontierSz++;
-				}
-			}
-        }
-
-        if (cellPt.x < maze->width - 1) {
-            size_t i = frontierI + 1;
-            if (isSameTree(trees + startI, trees + i)) {
-                potCells[potSz++] = trees[i];
-            } else {
-				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
-					frontierSz++;
-				}
-			}
-        }
-
-        if (cellPt.y > 0) {
-            size_t i = frontierI - maze->width;
-            if (isSameTree(trees + startI, trees + i)) {
-                potCells[potSz++] = trees[i];
-            } else {
-				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
-					frontierSz++;
-				}
-			}
-        }
-
-        if (cellPt.y < maze->height - 1) {
-            size_t i = frontierI + maze->width;
-            if (isSameTree(trees + startI, trees + i)) {
-                potCells[potSz++] = trees[i];
-            } else {
-				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
-					frontierSz++;
-				}
-			}
-        }
-
-        // pick a random maze cell
-        randPotCellI = potCells[rand() % potSz].val;
-
-        // join edges
-        division = div(randPotCellI, maze->width);
-        cellPt2.x = division.rem;
-        cellPt2.y = division.quot;
-
-        if (cellPt.x != cellPt2.x) {
-            if (cellPt.x > cellPt2.x) {
-                maze->cells[frontierI].left = 0;
-                maze->cells[randPotCellI].right = 0;
-            } else {
-                maze->cells[frontierI].right = 0;
-                maze->cells[randPotCellI].left = 0;
-            }
-        } else {
-            if (cellPt.y > cellPt2.y) {
-                maze->cells[frontierI].top = 0;
-                maze->cells[randPotCellI].bottom = 0;
-            } else {
-                maze->cells[frontierI].bottom = 0;
-                maze->cells[randPotCellI].top = 0;
-            }
-        }
-
-		joinTrees(trees + startI, trees + frontierI);
-
-        // remove frontier
-        for (ssize_t i = randI; i < frontierSz - 1; i++) {
-            frontiers[i] = frontiers[i + 1];
-        }
-        frontierSz--;
-    }
-
-    // assign start and stop location
-    if (rand() % 2 == 0) {
-        start.x = rand() % maze->width;
-        stop.x = rand() % maze->width;
-        if (rand() % 2 == 0) {
-            start.y = 0;
-            stop.y = maze->height - 1;
-        } else {
-            start.y = maze->height - 1;
-            stop.y = 0;
-        }
-    } else {
-        start.y = rand() % maze->height;
-        stop.y = rand() % maze->height;
-        if (rand() % 2 == 0) {
-            start.x = 0;
-            stop.x = maze->width - 1;
-        } else {
-            start.x = maze->width - 1;
-            stop.x = 0;
-        }
-    }
-
-    maze->cells[start.y * maze->width + start.x].start = 1;
-    maze->cells[stop.y * maze->width + stop.x].stop = 1;
-
-    // stringify
-    maze->str = graphToString(maze->cells, maze->width, maze->height);
-}
-
 void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
                            FILE *restrict stream) {
     switch (algorithm) {
         case kruskal:
             kruskalGenWithSteps(maze, stream);
             break;
-		case prim:
-			primGenWithSteps(maze, stream);
-			break;
+        case prim:
+            primGenWithSteps(maze, stream);
+            break;
         case INVALID_ALGORITHM:
             break;
     }
 }
 
-void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
-    size_t sz = maze->width * maze->height;
-    Edge_t *edges = malloc(sizeof(*edges) * sz * 2);
-    size_t edgeCount = 0;
-    Tree_t *trees = malloc(sizeof(*trees) * sz);
-    Point_t start, stop;
-
-    for (size_t i = 0; i < sz; i++) {
-        div_t division = div(i, maze->width);
-        Point_t pt = {division.rem, division.quot};
-
-        if (pt.y > 0) {
-            edges[edgeCount].point = pt;
-            edges[edgeCount++].dir = up;
-        }
-
-        if (pt.x > 0) {
-            edges[edgeCount].point = pt;
-            edges[edgeCount++].dir = left;
-        }
-
-        trees[i] = (Tree_t){i, NULL, NULL, NULL};
-    }
-
-    // shuffle
-    srand(time(NULL));
-    for (size_t j = 0; j < 2; j++) {
-        for (size_t i = 0; i < edgeCount; i++) {
-            int randI = rand() % edgeCount;
-            Edge_t tmp = edges[i];
-            edges[i] = edges[randI];
-            edges[randI] = tmp;
-        }
-    }
-
-    fprintStep(stream, maze);
-    for (size_t i = 0; i < edgeCount; i++) {
-        Point_t point = edges[i].point;
-        size_t i1 = point.y * maze->width + point.x;
-        point = pointShift(point, edges[i].dir);
-        size_t i2 = point.y * maze->width + point.x;
-
-        if (!isSameTree(trees + i1, trees + i2)) {
-            switch (edges[i].dir) {
-                case up:
-                    maze->cells[i1].top = 0;
-                    maze->cells[i2].bottom = 0;
-                    break;
-                case down:
-                    maze->cells[i1].bottom = 0;
-                    maze->cells[i2].top = 0;
-                    break;
-                case left:
-                    maze->cells[i1].left = 0;
-                    maze->cells[i2].right = 0;
-                    break;
-                case right:
-                    maze->cells[i1].right = 0;
-                    maze->cells[i2].left = 0;
-                    break;
-            }
-
-            joinTrees(trees + i1, trees + i2);
-            fprintStep(stream, maze);
-        }
-    }
-
-    free(trees);
-    free(edges);
-
-    // assign start and stop location
-    if (rand() % 2 == 0) {
-        start.x = rand() % maze->width;
-        stop.x = rand() % maze->width;
-        if (rand() % 2 == 0) {
-            start.y = 0;
-            stop.y = maze->height - 1;
-        } else {
-            start.y = maze->height - 1;
-            stop.y = 0;
-        }
-    } else {
-        start.y = rand() % maze->height;
-        stop.y = rand() % maze->height;
-        if (rand() % 2 == 0) {
-            start.x = 0;
-            stop.x = maze->width - 1;
-        } else {
-            start.x = maze->width - 1;
-            stop.x = 0;
-        }
-    }
-
-    maze->cells[start.y * maze->width + start.x].start = 1;
-    fprintStep(stream, maze);
-    maze->cells[stop.y * maze->width + stop.x].stop = 1;
-
-    // stringify
-    maze->str = graphToString(maze->cells, maze->width, maze->height);
-    fputs(maze->str, stream);
-}
-
-void primGenWithSteps(Maze_t *maze, FILE *restrict stream) {
-    size_t sz = maze->width * maze->height;
-    size_t startI;
-    ssize_t frontierSz = 0;
-    Tree_t *trees = malloc(sizeof(*trees) * sz);
-    Tree_t *frontiers = malloc(sizeof(*trees) * sz);
-    Point_t start, stop, cellPt;
-    div_t division;
-
-    for (size_t i = 0; i < sz; i++) {
-        // div_t division = div(i, maze->width);
-        // Point_t pt = {division.rem, division.quot};
-        trees[i] = (Tree_t){i, NULL, NULL, NULL};
-    }
-
-    srand(time(NULL));
-
-    // random starting cell
-    startI = rand() % sz;
-
-    // Get initial frontiers
-    division = div(startI, maze->width);
-    cellPt.x = division.rem;
-    cellPt.y = division.quot;
-
-    if (cellPt.x > 0) {
-        frontiers[frontierSz++] = trees[startI - 1];
-		maze->cells[startI - 1].observing = 1;
-    }
-
-    if (cellPt.x < maze->width - 1) {
-        frontiers[frontierSz++] = trees[startI + 1];
-		maze->cells[startI + 1].observing = 1;
-    }
-
-    if (cellPt.y > 0) {
-        frontiers[frontierSz++] = trees[startI - maze->width];
-		maze->cells[startI - maze->width].observing = 1;
-    }
-
-    if (cellPt.y < maze->height - 1) {
-        frontiers[frontierSz++] = trees[startI + maze->width];
-		maze->cells[startI + maze->width].observing = 1;
-    }
-
-	fprintStep(stream, maze);
-
-	// evaluate frontiers
-    while (frontierSz != 0) {
-        size_t randI = rand() % frontierSz;
-        size_t frontierI = frontiers[randI].val;
-        Tree_t potCells[4];
-        size_t potSz = 0;
-        size_t randPotCellI = 0;
-        Point_t cellPt2 = {0, 0};
-
-        division = div(frontierI, maze->width);
-        cellPt.x = division.rem;
-        cellPt.y = division.quot;
-
-        // find cells in maze adjacent to the current frontier cell
-        if (cellPt.x > 0) {
-            size_t i = frontierI - 1;
-            if (isSameTree(trees + startI, trees + i)) {
-                potCells[potSz++] = trees[i];
-			} else {
-				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
-					frontierSz++;
-					maze->cells[i].observing = 1;
-				}
-			}
-        }
-
-        if (cellPt.x < maze->width - 1) {
-            size_t i = frontierI + 1;
-            if (isSameTree(trees + startI, trees + i)) {
-                potCells[potSz++] = trees[i];
-            } else {
-				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
-					frontierSz++;
-					maze->cells[i].observing = 1;
-				}
-			}
-        }
-
-        if (cellPt.y > 0) {
-            size_t i = frontierI - maze->width;
-            if (isSameTree(trees + startI, trees + i)) {
-                potCells[potSz++] = trees[i];
-            } else {
-				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
-					frontierSz++;
-					maze->cells[i].observing = 1;
-				}
-			}
-        }
-
-        if (cellPt.y < maze->height - 1) {
-            size_t i = frontierI + maze->width;
-            if (isSameTree(trees + startI, trees + i)) {
-                potCells[potSz++] = trees[i];
-            } else {
-				if (addUniqueFrontier(frontiers, frontierSz, trees[i])) {
-					frontierSz++;
-					maze->cells[i].observing = 1;
-				}
-			}
-        }
-
-        // pick a random maze cell
-        randPotCellI = potCells[rand() % potSz].val;
-
-        // join edges
-        division = div(randPotCellI, maze->width);
-        cellPt2.x = division.rem;
-        cellPt2.y = division.quot;
-
-        if (cellPt.x != cellPt2.x) {
-            if (cellPt.x > cellPt2.x) {
-                maze->cells[frontierI].left = 0;
-                maze->cells[randPotCellI].right = 0;
-            } else {
-                maze->cells[frontierI].right = 0;
-                maze->cells[randPotCellI].left = 0;
-            }
-        } else {
-            if (cellPt.y > cellPt2.y) {
-                maze->cells[frontierI].top = 0;
-                maze->cells[randPotCellI].bottom = 0;
-            } else {
-                maze->cells[frontierI].bottom = 0;
-                maze->cells[randPotCellI].top = 0;
-            }
-        }
-		maze->cells[frontierI].observing = 0;
-
-		joinTrees(trees + startI, trees + frontierI);
-
-		fprintStep(stream, maze);
-
-        // remove frontier
-        for (ssize_t i = randI; i < frontierSz - 1; i++) {
-            frontiers[i] = frontiers[i + 1];
-        }
-        frontierSz--;
-    }
-
-    // assign start and stop location
-    if (rand() % 2 == 0) {
-        start.x = rand() % maze->width;
-        stop.x = rand() % maze->width;
-        if (rand() % 2 == 0) {
-            start.y = 0;
-            stop.y = maze->height - 1;
-        } else {
-            start.y = maze->height - 1;
-            stop.y = 0;
-        }
-    } else {
-        start.y = rand() % maze->height;
-        stop.y = rand() % maze->height;
-        if (rand() % 2 == 0) {
-            start.x = 0;
-            stop.x = maze->width - 1;
-        } else {
-            start.x = maze->width - 1;
-            stop.x = 0;
-        }
-    }
-
-    maze->cells[start.y * maze->width + start.x].start = 1;
-	fprintStep(stream, maze);
-    maze->cells[stop.y * maze->width + stop.x].stop = 1;
-
-    // stringify
-    maze->str = graphToString(maze->cells, maze->width, maze->height);
-	fputs(maze->str, stream);
-}
-
 Tree_t *removeNode(Tree_t **head, int val) {
-	Tree_t *node = *head;
-	Tree_t *left, *right, *parent;
+    Tree_t *node = *head;
+    Tree_t *left, *right, *parent;
 
-	while (!node && node->val != val) {
-		if (node->val < val) {
-			node = node->right;
-		} else {
-			node = node->left;
-		}
-	}
+    while (!node && node->val != val) {
+        if (node->val < val) {
+            node = node->right;
+        } else {
+            node = node->left;
+        }
+    }
 
-	if (!node) {
-		left = node->left;
-		right = node->right;
-		parent = node->parent;
+    if (!node) {
+        left = node->left;
+        right = node->right;
+        parent = node->parent;
 
-		node->parent = NULL;
-		node->left = NULL;
-		node->right = NULL;
+        node->parent = NULL;
+        node->left = NULL;
+        node->right = NULL;
 
-		// node is the head node
-		if (!parent) {
-			if (!left) {
-				*head = left;
-				left->parent = NULL;
-				joinTrees(*head, right);
-			} else {
-				right->parent = NULL;
-				*head = right;
-			}
-		// node is the parents left node
-		} else if (parent->left == node) {
-			parent->left = NULL;
-		// node is the parents right node
-		} else {
-			parent->right = NULL;
-		}
+        // node is the head node
+        if (!parent) {
+            if (!left) {
+                *head = left;
+                left->parent = NULL;
+                joinTrees(*head, right);
+            } else {
+                right->parent = NULL;
+                *head = right;
+            }
+            // node is the parents left node
+        } else if (parent->left == node) {
+            parent->left = NULL;
+            // node is the parents right node
+        } else {
+            parent->right = NULL;
+        }
 
-		// The next to ifs only run when node was not the head node
-		if (parent && !left) {
-			left->parent = NULL;
-			joinTrees(parent, left);
-		}
+        // The next to ifs only run when node was not the head node
+        if (parent && !left) {
+            left->parent = NULL;
+            joinTrees(parent, left);
+        }
 
-		if (parent && !right) {
-			right->parent = NULL;
-			joinTrees(parent, right);
-		}
-	}
+        if (parent && !right) {
+            right->parent = NULL;
+            joinTrees(parent, right);
+        }
+    }
 
-	return node;
+    return node;
 }
 
 void joinTrees(Tree_t *head, Tree_t *node) {
