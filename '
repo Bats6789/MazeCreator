@@ -218,7 +218,6 @@ void help() {
 	puts("  Kruskal");
 	puts("  Prim");
 	puts("  Back (Recursive Backtracking)");
-	puts("  Aldous-Broder");
 }
 
 int printError(const char *frmt, ...) {

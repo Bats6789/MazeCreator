@@ -10,7 +10,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 add_library(MazeViewer STATIC src/MazeViewer.c)
-add_library(MazeTools STATIC src/MazeTools.c src/kruskal.c src/prim.c)
+add_library(MazeTools STATIC 
+				src/MazeTools.c 
+				src/kruskal.c 
+				src/prim.c
+				src/recursiveBacktracking.c
+				src/aldous_broder.c
+				)
 
 add_executable(MazeCreator src/main.c)
 

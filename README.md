@@ -108,8 +108,8 @@ in the future.
 - [ ] Maze Generator
 - - [x] [Kruskal](https://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm)
 - - [x] [Prim](https://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm)
-- - [ ] Recursive Backtracker
-- - [ ] Aldous-Broder
+- - [x] [Recursive Backtracker](https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking)
+- - [x] [Aldous-Broder](https://weblog.jamisbuck.org/2011/1/17/maze-generation-aldous-broder-algorithm)
 - - [ ] Growing Tree
 - - [ ] Hunt-and-Kill
 - - [ ] Wilson

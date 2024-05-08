@@ -121,8 +121,10 @@ typedef struct {
 
 /**@brief The various kinds of generation algorithms. */
 typedef enum {
-    kruskal,          /**@brief The kruskal algorithm. */
-    prim,             /**@brief The Prim algorithm. */
+    kruskal,          /**@brief Kruskal algorithm. */
+    prim,             /**@brief Prim algorithm. */
+	back,             /**@brief Recursive backtracking algorithm. */
+	aldous_broder,    /**@brief Aldous-Broder algorithm. */
     INVALID_ALGORITHM /**@brief Invalid algorithm. */
 } genAlgo_t;
 
@@ -157,6 +159,16 @@ Maze_t createMazeWH(size_t width, size_t height);
  */
 Maze_t importMaze(FILE *stream);
 
+/**@brief Breaks a wall between two cells in a maze.
+ * 
+ * @param maze The maze to modify.
+ * @param i1 The index of the source cell.
+ * @param i2 The index of the destination cell.
+ * @param dir The direction to break.
+ * @return void
+ */
+void mazeBreakWall(Maze_t *maze, size_t i1, size_t i2, Direction_t dir);
+
 /**@brief Finds the starting position in the maze.
  *
  * @param maze The maze to search for the starting position.
@@ -180,6 +192,39 @@ Point_t findStop(Maze_t maze);
  * @return The shifted point.
  */
 Point_t pointShift(Point_t point, Direction_t direction);
+
+/**@brief Converts a point to an index.
+ *
+ * @param point The point to convert.
+ * @param width The width of a row.
+ * @return The indexed point.
+ */
+size_t pointToIndex(Point_t point, size_t width);
+
+/**@brief Converts an index to a point.
+ *
+ * @param i The index to convert.
+ * @param width The width of a row.
+ * @return The point.
+ */
+Point_t indexToPoint(size_t i, size_t width);
+
+/**@brief Provides a random direction to traverse.
+ *
+ * @param point The point to travel from.
+ * @param maze The maze being traversed.
+ * @return The direction to traverse.
+ */
+Direction_t getRandomDirection(Point_t point, Maze_t maze);
+
+/**@brief Provides every direction traversable from a point.
+ *
+ * @param point The point to travel from.
+ * @param maze The maze being traversed.
+ * @param dir The directions to traverse.
+ * @return The number of traversable directions.
+ */
+size_t getRandomDirections(Point_t point, Maze_t maze, Direction_t dir[4]);
 
 /**@brief Gets the head of the tree.
  *
@@ -240,6 +285,14 @@ char *graphToString(Cell_t *cells, size_t width, size_t height);
  * @return void
  */
 void fprintStep(FILE *restrict stream, Maze_t *maze);
+
+/**@brief Writes the current state of the maze while ignoring visited.
+ *
+ * @param stream The stream to write to.
+ * @param maze The maze to write.
+ * @return void
+ */
+void fprintStepIgnoreVisted(FILE *restrict stream, Maze_t *maze);
 
 /**@brief Frees a maze.
  *

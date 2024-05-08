@@ -14,8 +14,7 @@ void kruskalGen(Maze_t *maze) {
     Point_t start, stop;
 
     for (size_t i = 0; i < sz; i++) {
-        div_t division = div(i, maze->width);
-        Point_t pt = {division.rem, division.quot};
+        Point_t pt = indexToPoint(i, maze->width);
 
         if (pt.y > 0) {
             edges[edgeCount].point = pt;
@@ -43,30 +42,12 @@ void kruskalGen(Maze_t *maze) {
 
     for (size_t i = 0; i < edgeCount; i++) {
         Point_t point = edges[i].point;
-        size_t i1 = point.y * maze->width + point.x;
+        size_t i1 = pointToIndex(point, maze->width);
         point = pointShift(point, edges[i].dir);
-        size_t i2 = point.y * maze->width + point.x;
+        size_t i2 = pointToIndex(point, maze->width);
 
         if (!isSameTree(trees + i1, trees + i2)) {
-            switch (edges[i].dir) {
-                case up:
-                    maze->cells[i1].top = 0;
-                    maze->cells[i2].bottom = 0;
-                    break;
-                case down:
-                    maze->cells[i1].bottom = 0;
-                    maze->cells[i2].top = 0;
-                    break;
-                case left:
-                    maze->cells[i1].left = 0;
-                    maze->cells[i2].right = 0;
-                    break;
-                case right:
-                    maze->cells[i1].right = 0;
-                    maze->cells[i2].left = 0;
-                    break;
-            }
-
+			mazeBreakWall(maze, i1, i2, edges[i].dir);
             joinTrees(trees + i1, trees + i2);
         }
     }
@@ -97,8 +78,8 @@ void kruskalGen(Maze_t *maze) {
         }
     }
 
-    maze->cells[start.y * maze->width + start.x].start = 1;
-    maze->cells[stop.y * maze->width + stop.x].stop = 1;
+    maze->cells[pointToIndex(start, maze->width)].start = 1;
+    maze->cells[pointToIndex(stop, maze->height)].stop = 1;
 
     // stringify
     maze->str = graphToString(maze->cells, maze->width, maze->height);
@@ -112,8 +93,7 @@ void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
     Point_t start, stop;
 
     for (size_t i = 0; i < sz; i++) {
-        div_t division = div(i, maze->width);
-        Point_t pt = {division.rem, division.quot};
+		Point_t pt = indexToPoint(i, maze->width);
 
         if (pt.y > 0) {
             edges[edgeCount].point = pt;
@@ -142,30 +122,12 @@ void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
     fprintStep(stream, maze);
     for (size_t i = 0; i < edgeCount; i++) {
         Point_t point = edges[i].point;
-        size_t i1 = point.y * maze->width + point.x;
+		size_t i1 = pointToIndex(point, maze->width);
         point = pointShift(point, edges[i].dir);
-        size_t i2 = point.y * maze->width + point.x;
+        size_t i2 = pointToIndex(point, maze->width);
 
         if (!isSameTree(trees + i1, trees + i2)) {
-            switch (edges[i].dir) {
-                case up:
-                    maze->cells[i1].top = 0;
-                    maze->cells[i2].bottom = 0;
-                    break;
-                case down:
-                    maze->cells[i1].bottom = 0;
-                    maze->cells[i2].top = 0;
-                    break;
-                case left:
-                    maze->cells[i1].left = 0;
-                    maze->cells[i2].right = 0;
-                    break;
-                case right:
-                    maze->cells[i1].right = 0;
-                    maze->cells[i2].left = 0;
-                    break;
-            }
-
+			mazeBreakWall(maze, i1, i2, edges[i].dir);
             joinTrees(trees + i1, trees + i2);
             fprintStep(stream, maze);
         }
@@ -197,9 +159,9 @@ void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
         }
     }
 
-    maze->cells[start.y * maze->width + start.x].start = 1;
+    maze->cells[pointToIndex(start, maze->width)].start = 1;
     fprintStep(stream, maze);
-    maze->cells[stop.y * maze->width + stop.x].stop = 1;
+    maze->cells[pointToIndex(stop, maze->width)].stop = 1;
 
     // stringify
     maze->str = graphToString(maze->cells, maze->width, maze->height);
