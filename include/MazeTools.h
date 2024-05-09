@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-/**@brief An Enum for keeping track of directions. */
+/**@brief An enum for keeping track of directions. */
 typedef enum {
     up,   /**@brief The up direction. */
     down, /**@brief The down direction. */
@@ -125,6 +125,7 @@ typedef enum {
     prim,             /**@brief Prim algorithm. */
 	back,             /**@brief Recursive backtracking algorithm. */
 	aldous_broder,    /**@brief Aldous-Broder algorithm. */
+	growing_tree,     /**@brief Growing-Tree algorithm. */
     INVALID_ALGORITHM /**@brief Invalid algorithm. */
 } genAlgo_t;
 
@@ -263,7 +264,7 @@ bool solveMaze(Maze_t *maze, Point_t start, Point_t stop);
  * @param maze The maze to solve.
  * @param start The starting location of the solve.
  * @param stop The stopping location of the solve.
- * @param stream The stream to write to.
+ * @param stream The stream for writing.
  * @return True if the maze was solved.
  */
 bool solveMazeWithSteps(Maze_t *maze, Point_t start, Point_t stop,
@@ -280,7 +281,7 @@ char *graphToString(Cell_t *cells, size_t width, size_t height);
 
 /**@brief Writes the current state of the maze.
  *
- * @param stream The stream to write to.
+ * @param stream The stream for writing.
  * @param maze The maze to write.
  * @return void
  */
@@ -288,7 +289,7 @@ void fprintStep(FILE *restrict stream, Maze_t *maze);
 
 /**@brief Writes the current state of the maze while ignoring visited.
  *
- * @param stream The stream to write to.
+ * @param stream The stream for writing.
  * @param maze The maze to write.
  * @return void
  */
@@ -320,7 +321,7 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm);
  *
  * @param maze The maze to manipulate.
  * @param algorithm The algorithm used for generation.
- * @param stream The stream to write to.
+ * @param stream The stream for writing.
  * @return void
  */
 void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
@@ -345,6 +346,22 @@ Tree_t *removeNode(Tree_t **head, int val);
  * @return void
  */
 void joinTrees(Tree_t *head, Tree_t *node);
+
+/**@brief Assigns a random start and stop location in a maze.
+ * 
+ * @param maze The maze to assign the points.
+ */
+void assignRandomStartAndStop(Maze_t *maze);
+
+/**@brief Assigns a random start and stop location in a maze, and writes it.
+ *
+ * Note: Only writes the start step. The stop step is left for the user to 
+ * determine when to write it.
+ * 
+ * @param maze The maze to assign the points.
+ * @param stream The stream for writing.
+ */
+void assignRandomStartAndStopWithSteps(Maze_t *maze, FILE *restrict stream);
 
 /**@brief Convert a string to a algorithm.
  *

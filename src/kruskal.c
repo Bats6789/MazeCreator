@@ -8,10 +8,9 @@
 
 void kruskalGen(Maze_t *maze) {
     size_t sz = maze->width * maze->height;
-    Edge_t *edges = malloc(sizeof(*edges) * sz * 2);
     size_t edgeCount = 0;
+    Edge_t *edges = malloc(sizeof(*edges) * sz * 2);
     Tree_t *trees = malloc(sizeof(*trees) * sz);
-    Point_t start, stop;
 
     for (size_t i = 0; i < sz; i++) {
         Point_t pt = indexToPoint(i, maze->width);
@@ -56,30 +55,7 @@ void kruskalGen(Maze_t *maze) {
     free(edges);
 
     // assign start and stop location
-    if (rand() % 2 == 0) {
-        start.x = rand() % maze->width;
-        stop.x = rand() % maze->width;
-        if (rand() % 2 == 0) {
-            start.y = 0;
-            stop.y = maze->height - 1;
-        } else {
-            start.y = maze->height - 1;
-            stop.y = 0;
-        }
-    } else {
-        start.y = rand() % maze->height;
-        stop.y = rand() % maze->height;
-        if (rand() % 2 == 0) {
-            start.x = 0;
-            stop.x = maze->width - 1;
-        } else {
-            start.x = maze->width - 1;
-            stop.x = 0;
-        }
-    }
-
-    maze->cells[pointToIndex(start, maze->width)].start = 1;
-    maze->cells[pointToIndex(stop, maze->height)].stop = 1;
+	assignRandomStartAndStop(maze);
 
     // stringify
     maze->str = graphToString(maze->cells, maze->width, maze->height);
@@ -87,10 +63,9 @@ void kruskalGen(Maze_t *maze) {
 
 void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
     size_t sz = maze->width * maze->height;
-    Edge_t *edges = malloc(sizeof(*edges) * sz * 2);
     size_t edgeCount = 0;
+    Edge_t *edges = malloc(sizeof(*edges) * sz * 2);
     Tree_t *trees = malloc(sizeof(*trees) * sz);
-    Point_t start, stop;
 
     for (size_t i = 0; i < sz; i++) {
 		Point_t pt = indexToPoint(i, maze->width);
@@ -137,31 +112,7 @@ void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
     free(edges);
 
     // assign start and stop location
-    if (rand() % 2 == 0) {
-        start.x = rand() % maze->width;
-        stop.x = rand() % maze->width;
-        if (rand() % 2 == 0) {
-            start.y = 0;
-            stop.y = maze->height - 1;
-        } else {
-            start.y = maze->height - 1;
-            stop.y = 0;
-        }
-    } else {
-        start.y = rand() % maze->height;
-        stop.y = rand() % maze->height;
-        if (rand() % 2 == 0) {
-            start.x = 0;
-            stop.x = maze->width - 1;
-        } else {
-            start.x = maze->width - 1;
-            stop.x = 0;
-        }
-    }
-
-    maze->cells[pointToIndex(start, maze->width)].start = 1;
-    fprintStep(stream, maze);
-    maze->cells[pointToIndex(stop, maze->width)].stop = 1;
+	assignRandomStartAndStopWithSteps(maze, stream);
 
     // stringify
     maze->str = graphToString(maze->cells, maze->width, maze->height);

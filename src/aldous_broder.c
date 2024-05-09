@@ -6,7 +6,7 @@
 #include "aldous_broder.h"
 
 void aldousBroder(Maze_t *maze) {
-	Point_t point, start, stop;
+	Point_t point;
 	size_t sz = maze->width * maze->height;
 	size_t cellsNotVisitedCount = sz;
 	size_t index;
@@ -41,37 +41,14 @@ void aldousBroder(Maze_t *maze) {
 	}
 
     // assign start and stop location
-    if (rand() % 2 == 0) {
-        start.x = rand() % maze->width;
-        stop.x = rand() % maze->width;
-        if (rand() % 2 == 0) {
-            start.y = 0;
-            stop.y = maze->height - 1;
-        } else {
-            start.y = maze->height - 1;
-            stop.y = 0;
-        }
-    } else {
-        start.y = rand() % maze->height;
-        stop.y = rand() % maze->height;
-        if (rand() % 2 == 0) {
-            start.x = 0;
-            stop.x = maze->width - 1;
-        } else {
-            start.x = maze->width - 1;
-            stop.x = 0;
-        }
-    }
-
-    maze->cells[pointToIndex(start, maze->width)].start = 1;
-    maze->cells[pointToIndex(stop, maze->height)].stop = 1;
+	assignRandomStartAndStop(maze);
 
     // stringify
     maze->str = graphToString(maze->cells, maze->width, maze->height);
 }
 
 void aldousBroderWithSteps(Maze_t *maze, FILE *restrict stream) {
-	Point_t point, start, stop;
+	Point_t point;
 	size_t sz = maze->width * maze->height;
 	size_t cellsNotVisitedCount = sz;
 	size_t index;
@@ -112,31 +89,7 @@ void aldousBroderWithSteps(Maze_t *maze, FILE *restrict stream) {
 	}
 
     // assign start and stop location
-    if (rand() % 2 == 0) {
-        start.x = rand() % maze->width;
-        stop.x = rand() % maze->width;
-        if (rand() % 2 == 0) {
-            start.y = 0;
-            stop.y = maze->height - 1;
-        } else {
-            start.y = maze->height - 1;
-            stop.y = 0;
-        }
-    } else {
-        start.y = rand() % maze->height;
-        stop.y = rand() % maze->height;
-        if (rand() % 2 == 0) {
-            start.x = 0;
-            stop.x = maze->width - 1;
-        } else {
-            start.x = maze->width - 1;
-            stop.x = 0;
-        }
-    }
-
-    maze->cells[pointToIndex(start, maze->width)].start = 1;
-    fprintStep(stream, maze);
-    maze->cells[pointToIndex(stop, maze->width)].stop = 1;
+	assignRandomStartAndStopWithSteps(maze, stream);
 
     // stringify
     maze->str = graphToString(maze->cells, maze->width, maze->height);

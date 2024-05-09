@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "MazeTools.h"
+#include "growing_tree.h"
 #include "kruskal.h"
 #include "prim.h"
 #include "recursiveBacktracking.h"
@@ -531,7 +532,10 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
 			break;
         case aldous_broder:
 			aldousBroder(maze);
-          break;
+			break;
+		case growing_tree:
+			growingTreeGen(maze, newest_randomTree, 0.5);
+			break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -551,6 +555,9 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
         case aldous_broder:
 			aldousBroderWithSteps(maze, stream);
           break;
+		case growing_tree:
+			growingTreeGenWithSteps(maze, newest_randomTree, 0.5, stream);
+			break;
         case INVALID_ALGORITHM:
             break;
         }
@@ -634,6 +641,65 @@ void joinTrees(Tree_t *head, Tree_t *node) {
     }
 }
 
+void assignRandomStartAndStop(Maze_t *maze) {
+	Point_t start, stop;
+
+    if (rand() % 2 == 0) {
+        start.x = rand() % maze->width;
+        stop.x = rand() % maze->width;
+        if (rand() % 2 == 0) {
+            start.y = 0;
+            stop.y = maze->height - 1;
+        } else {
+            start.y = maze->height - 1;
+            stop.y = 0;
+        }
+    } else {
+        start.y = rand() % maze->height;
+        stop.y = rand() % maze->height;
+        if (rand() % 2 == 0) {
+            start.x = 0;
+            stop.x = maze->width - 1;
+        } else {
+            start.x = maze->width - 1;
+            stop.x = 0;
+        }
+    }
+
+    maze->cells[pointToIndex(start, maze->width)].start = 1;
+    maze->cells[pointToIndex(stop, maze->height)].stop = 1;
+}
+
+void assignRandomStartAndStopWithSteps(Maze_t *maze, FILE *restrict stream) {
+	Point_t start, stop;
+
+    if (rand() % 2 == 0) {
+        start.x = rand() % maze->width;
+        stop.x = rand() % maze->width;
+        if (rand() % 2 == 0) {
+            start.y = 0;
+            stop.y = maze->height - 1;
+        } else {
+            start.y = maze->height - 1;
+            stop.y = 0;
+        }
+    } else {
+        start.y = rand() % maze->height;
+        stop.y = rand() % maze->height;
+        if (rand() % 2 == 0) {
+            start.x = 0;
+            stop.x = maze->width - 1;
+        } else {
+            start.x = maze->width - 1;
+            stop.x = 0;
+        }
+    }
+
+    maze->cells[pointToIndex(start, maze->width)].start = 1;
+    fprintStep(stream, maze);
+    maze->cells[pointToIndex(stop, maze->width)].stop = 1;
+}
+
 genAlgo_t strToGenAlgo(const char *str) {
     if (strcmp(str, "kruskal") == 0) {
         return kruskal;
@@ -649,6 +715,10 @@ genAlgo_t strToGenAlgo(const char *str) {
 
 	if (strcmp(str, "aldous-broder") == 0) {
 		return aldous_broder;
+	}
+
+	if (strcmp(str, "growing-tree") == 0) {
+		return growing_tree;
 	}
 
     return INVALID_ALGORITHM;

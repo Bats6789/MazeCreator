@@ -110,7 +110,12 @@ in the future.
 - - [x] [Prim](https://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm)
 - - [x] [Recursive Backtracker](https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking)
 - - [x] [Aldous-Broder](https://weblog.jamisbuck.org/2011/1/17/maze-generation-aldous-broder-algorithm)
-- - [ ] Growing Tree
+- - [x] [Growing Tree](https://weblog.jamisbuck.org/2011/1/27/maze-generation-growing-tree-algorithm#)
+- - - [x] Add oldest cell
+- - - [x] Add newest cell
+- - - [x] Add middle cell
+- - - [x] Add random cell
+- - - [x] Allow mixing of methods
 - - [ ] Hunt-and-Kill
 - - [ ] Wilson
 - - [ ] Eller
