@@ -20,7 +20,7 @@ static Point_t hunt(Maze_t *maze) {
                 newPoint = pointShift(point, dir[j]);
                 newI = pointToIndex(newPoint, maze->width);
 
-                if (maze->cells[j].visited == 1) {
+                if (maze->cells[newI].visited == 1) {
                     mazeBreakWall(maze, i, newI, dir[j]);
                     return indexToPoint(i, maze->width);
                 }
@@ -43,15 +43,16 @@ static Point_t huntWithSteps(Maze_t *maze, FILE *restrict stream) {
 
     for (point.y = 0; point.y < maze->height && !found; ++point.y) {
         for (point.x = 0; point.x < maze->width; ++point.x) {
+			i = pointToIndex(point, maze->width);
             maze->cells[i].observing = 1;
-            if (maze->cells[i++].visited == 0 && !found) {
-                dirSz = getRandomDirections(foundPoint, *maze, dir);
+            if (maze->cells[i].visited == 0 && !found) {
+                dirSz = getRandomDirections(point, *maze, dir);
 
                 for (size_t j = 0; j < dirSz; j++) {
-                    newPoint = pointShift(foundPoint, dir[j]);
+                    newPoint = pointShift(point, dir[j]);
                     newI = pointToIndex(newPoint, maze->width);
 
-                    if (maze->cells[j].visited == 1) {
+                    if (maze->cells[newI].visited == 1) {
                         found = true;
                         foundPoint = point;
                         foundDir = dir[j];
@@ -63,20 +64,20 @@ static Point_t huntWithSteps(Maze_t *maze, FILE *restrict stream) {
 
         fprintStepIgnoreVisted(stream, maze);
 
-        i = point.y * maze->width;
         for (point.x = 0; point.x < maze->width; ++point.x) {
-            maze->cells[i++].observing = 0;
+			i = pointToIndex(point, maze->width);
+            maze->cells[i].observing = 0;
         }
     }
 
-    i = pointToIndex(foundPoint, maze->width);
-    maze->cells[i].observing = 1;
-    fprintStepIgnoreVisted(stream, maze);
-    maze->cells[i].observing = 0;
 
     if (found) {
-        mazeBreakWall(maze, pointToIndex(foundPoint, maze->width), newI,
-                      foundDir);
+		i = pointToIndex(foundPoint, maze->width);
+		maze->cells[i].observing = 1;
+		fprintStepIgnoreVisted(stream, maze);
+		maze->cells[i].observing = 0;
+
+        mazeBreakWall(maze, i, newI, foundDir);
         fprintStepIgnoreVisted(stream, maze);
     }
 
@@ -95,6 +96,8 @@ void huntAndKillGen(Maze_t *maze) {
 
     point.x = rand() % maze->width;
     point.y = rand() % maze->height;
+
+	maze->cells[pointToIndex(point, maze->width)].visited = 1;
 
     do {
         do {
@@ -141,9 +144,13 @@ void huntAndKillGenWithSteps(Maze_t *maze, FILE *restrict stream) {
     Direction_t dir[4];
 
     srand(time(NULL));
+	
+	fprintStep(stream, maze);
 
     point.x = rand() % maze->width;
     point.y = rand() % maze->height;
+
+	maze->cells[pointToIndex(point, maze->width)].visited = 1;
 
     do {
         do {

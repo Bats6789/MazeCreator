@@ -305,6 +305,7 @@ void help() {
     puts("  Aldous-Broder");
     puts("  Growing-Tree <method>");
 	puts("  Hunt-and-Kill");
+	puts("  Wilson");
     puts("");
     puts("Growing-Tree methods:");
     puts("  The growing tree has several methods for adding new cells.");

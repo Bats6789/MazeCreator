@@ -83,6 +83,7 @@ typedef struct {
         uint32_t properties;
         struct {
             unsigned blank : 23;    /**@brief Empty space. */
+			unsigned queued : 1;    /**@brief Is the cell enqueued. */
             unsigned observing : 1; /**@brief Is the cell under observation. */
             unsigned path : 1;      /**@brief Is the cell a path to the solution. */
             unsigned start : 1;     /**@brief Is the cell the start. */
@@ -127,6 +128,7 @@ typedef enum {
 	aldous_broder,    /**@brief Aldous-Broder algorithm. */
 	growing_tree,     /**@brief Growing-Tree algorithm. */
 	hunt_and_kill,    /**@brief Hunt-and-Kill algorithm. */
+	wilson,           /**@brief Wilson's algorithm. */
     INVALID_ALGORITHM /**@brief Invalid algorithm. */
 } genAlgo_t;
 

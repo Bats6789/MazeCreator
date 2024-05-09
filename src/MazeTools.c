@@ -10,6 +10,7 @@
 #include "kruskal.h"
 #include "prim.h"
 #include "recursiveBacktracking.h"
+#include "wilson.h"
 
 Maze_t createMaze(const char *str) {
     Maze_t maze = {0, 0, NULL, NULL};
@@ -41,7 +42,7 @@ Maze_t createMaze(const char *str) {
             size_t i = pointToIndex(point, maze.width);
             size_t strI = strWidth * (2 * point.y + 1) + 2 * point.x + 1;
 
-            if (str[strI] == '.') {
+            if (str[strI] == '.' || str[strI] == 's' || str[strI] == 'x') {
                 maze.cells[i].visited = 1;
             } else {
                 maze.cells[i].visited = 0;
@@ -55,6 +56,7 @@ Maze_t createMaze(const char *str) {
             }
 
             maze.cells[i].observing = str[strI] == ':' ? 1 : 0;
+			maze.cells[i].queued = str[strI] == 'Q' ? 1 : 0;
 
             if (str[strI] == 'S' || str[strI] == 's') {
                 maze.cells[i].start = 1;
@@ -99,6 +101,7 @@ Maze_t createMazeWH(size_t width, size_t height) {
         maze.cells[i].visited = 0;
         maze.cells[i].path = 0;
         maze.cells[i].observing = 0;
+		maze.cells[i].queued = 0;
     }
 
     return maze;
@@ -470,6 +473,10 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
                 str[strI] = '*';
             }
 
+			if (cells[i].queued) {
+				str[strI] = cells[i].visited == 1 ? 'q' : 'Q';
+			}
+
             if (cells[i].start == 1) {
                 str[strI] = cells[i].visited == 1 ? 's' : 'S';
             } else if (cells[i].stop == 1) {
@@ -539,6 +546,9 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
         case hunt_and_kill:
             huntAndKillGen(maze);
             break;
+        case wilson:
+            wilsonGen(maze);
+            break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -564,6 +574,9 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
             break;
         case hunt_and_kill:
             huntAndKillGenWithSteps(maze, stream);
+            break;
+        case wilson:
+            wilsonGenWithSteps(maze, stream);
             break;
         case INVALID_ALGORITHM:
             break;
@@ -730,6 +743,10 @@ genAlgo_t strToGenAlgo(const char *str) {
 
     if (strcmp(str, "hunt-and-kill") == 0) {
         return hunt_and_kill;
+    }
+
+    if (strcmp(str, "wilson") == 0) {
+        return wilson;
     }
 
     return INVALID_ALGORITHM;

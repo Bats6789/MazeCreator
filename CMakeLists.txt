@@ -18,6 +18,7 @@ add_library(MazeTools STATIC
 				src/aldous_broder.c
 				src/growing_tree.c
 				src/huntAndKill.c
+				src/wilson.c
 				)
 
 add_executable(MazeCreator src/main.c)
