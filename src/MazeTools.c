@@ -552,9 +552,10 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
             break;
 		case back:
 			recursiveBacktrackingWithSteps(maze, stream);
+			break;
         case aldous_broder:
 			aldousBroderWithSteps(maze, stream);
-          break;
+			break;
 		case growing_tree:
 			growingTreeGenWithSteps(maze, newest_randomTree, 0.5, stream);
 			break;
