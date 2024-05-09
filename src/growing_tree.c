@@ -159,9 +159,13 @@ void growingTreeGenWithSteps(Maze_t *maze, growingTreeMethods_t method,
     point.x = rand() % maze->width;
     point.y = rand() % maze->height;
 
+	fprintStepIgnoreVisted(stream, maze);
+
     trackedCells[trackedCellsSz++] = pointToIndex(point, maze->width);
     maze->cells[trackedCells[0]].visited = 1;
     maze->cells[trackedCells[0]].observing = 1;
+
+	fprintStepIgnoreVisted(stream, maze);
 
     while (trackedCellsSz > 0) {
         size_t trackedI = grabIndexFromMethod(method, split, trackedCellsSz);
@@ -189,6 +193,7 @@ void growingTreeGenWithSteps(Maze_t *maze, growingTreeMethods_t method,
             maze->cells[trackedCells[trackedI]].observing = 0;
             delete (&trackedCellsSz, trackedCells, trackedI);
         }
+		fprintStepIgnoreVisted(stream, maze);
     }
 
     // reset visited
