@@ -4,18 +4,19 @@
 #include <time.h>
 
 #include "MazeTools.h"
+#include "aldous_broder.h"
 #include "growing_tree.h"
+#include "huntAndKill.h"
 #include "kruskal.h"
 #include "prim.h"
 #include "recursiveBacktracking.h"
-#include "aldous_broder.h"
 
 Maze_t createMaze(const char *str) {
     Maze_t maze = {0, 0, NULL, NULL};
     size_t strWidth = 1;
     size_t len = strlen(str);
     size_t rows = 0;
-	Point_t point;
+    Point_t point;
 
     for (size_t i = 0; i < len; i += strWidth) {
         if (str[i] == '\n') {
@@ -131,28 +132,28 @@ Maze_t importMaze(FILE *stream) {
 }
 
 void mazeBreakWall(Maze_t *maze, size_t i1, size_t i2, Direction_t dir) {
-	switch (dir) {
-		case up:
-			maze->cells[i1].top = 0;
-			maze->cells[i2].bottom = 0;
-			break;
-		case down:
-			maze->cells[i1].bottom = 0;
-			maze->cells[i2].top = 0;
-			break;
-		case left:
-			maze->cells[i1].left = 0;
-			maze->cells[i2].right = 0;
-			break;
-		case right:
-			maze->cells[i1].right = 0;
-			maze->cells[i2].left = 0;
-			break;
-	}
+    switch (dir) {
+        case up:
+            maze->cells[i1].top = 0;
+            maze->cells[i2].bottom = 0;
+            break;
+        case down:
+            maze->cells[i1].bottom = 0;
+            maze->cells[i2].top = 0;
+            break;
+        case left:
+            maze->cells[i1].left = 0;
+            maze->cells[i2].right = 0;
+            break;
+        case right:
+            maze->cells[i1].right = 0;
+            maze->cells[i2].left = 0;
+            break;
+    }
 }
 
 Point_t findStart(Maze_t maze) {
-	Point_t point;
+    Point_t point;
 
     for (point.y = 0; point.y < maze.height; point.y++) {
         for (point.x = 0; point.x < maze.width; point.x++) {
@@ -166,7 +167,7 @@ Point_t findStart(Maze_t maze) {
 }
 
 Point_t findStop(Maze_t maze) {
-	Point_t point;
+    Point_t point;
 
     for (point.y = 0; point.y < maze.height; point.y++) {
         for (point.x = 0; point.x < maze.width; point.x++) {
@@ -195,12 +196,12 @@ Point_t pointShift(Point_t point, Direction_t direction) {
 }
 
 inline size_t pointToIndex(Point_t point, size_t width) {
-	return point.y * width + point.x;
+    return point.y * width + point.x;
 }
 
 Point_t indexToPoint(size_t i, size_t width) {
-	div_t division = div(i, width);
-	return (Point_t){division.rem, division.quot};
+    div_t division = div(i, width);
+    return (Point_t){division.rem, division.quot};
 }
 
 Direction_t getRandomDirection(Point_t point, Maze_t maze) {
@@ -223,7 +224,7 @@ Direction_t getRandomDirection(Point_t point, Maze_t maze) {
         dir[dirSz++] = down;
     }
 
-	return dir[rand() % dirSz];
+    return dir[rand() % dirSz];
 }
 
 size_t getRandomDirections(Point_t point, Maze_t maze, Direction_t dir[4]) {
@@ -246,15 +247,15 @@ size_t getRandomDirections(Point_t point, Maze_t maze, Direction_t dir[4]) {
     }
 
     for (size_t i = 0; i < 20; i++) {
-		size_t left = rand() % dirSz;
-		size_t right = rand() % dirSz;
+        size_t left = rand() % dirSz;
+        size_t right = rand() % dirSz;
 
-		Direction_t tmp = dir[left];
-		dir[left] = dir[right];
-		dir[right] = tmp;
+        Direction_t tmp = dir[left];
+        dir[left] = dir[right];
+        dir[right] = tmp;
     }
 
-	return dirSz;
+    return dirSz;
 }
 
 Tree_t *getHead(Tree_t *tree) {
@@ -413,7 +414,7 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
     size_t strHeight = height * 2 + 1;
     size_t sz = strWidth * strHeight + 1;
     char *str = malloc(sizeof(*str) * sz);
-	Point_t point;
+    Point_t point;
 
     if (str == NULL) {
         perror("Failed to allocate maze");
@@ -498,21 +499,20 @@ void fprintStep(FILE *restrict stream, Maze_t *maze) {
 }
 
 void fprintStepIgnoreVisted(FILE *restrict stream, Maze_t *maze) {
-	size_t sz = maze->width * maze->height;
-	bool visited[sz];
+    size_t sz = maze->width * maze->height;
+    bool visited[sz];
 
-	for (size_t i = 0; i < sz; i++) {
-		visited[i] = maze->cells[i].visited == 1;
-		maze->cells[i].visited = 0;
-	}
+    for (size_t i = 0; i < sz; i++) {
+        visited[i] = maze->cells[i].visited == 1;
+        maze->cells[i].visited = 0;
+    }
 
-	fprintStep(stream, maze);
+    fprintStep(stream, maze);
 
-	for (size_t i = 0; i < sz; i++) {
-		maze->cells[i].visited = visited[i] ? 1 : 0;
-	}
+    for (size_t i = 0; i < sz; i++) {
+        maze->cells[i].visited = visited[i] ? 1 : 0;
+    }
 }
-
 
 void freeMaze(Maze_t maze) {
     free(maze.str);
@@ -527,15 +527,18 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
         case prim:
             primGen(maze);
             break;
-		case back:
-			recursiveBacktracking(maze);
-			break;
+        case back:
+            recursiveBacktracking(maze);
+            break;
         case aldous_broder:
-			aldousBroder(maze);
-			break;
-		case growing_tree:
-			growingTreeGen(maze, newest_randomTree, 0.5);
-			break;
+            aldousBroder(maze);
+            break;
+        case growing_tree:
+            growingTreeGen(maze, newest_randomTree, 0.5);
+            break;
+        case hunt_and_kill:
+            huntAndKillGen(maze);
+            break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -550,18 +553,21 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
         case prim:
             primGenWithSteps(maze, stream);
             break;
-		case back:
-			recursiveBacktrackingWithSteps(maze, stream);
-			break;
+        case back:
+            recursiveBacktrackingWithSteps(maze, stream);
+            break;
         case aldous_broder:
-			aldousBroderWithSteps(maze, stream);
-			break;
-		case growing_tree:
-			growingTreeGenWithSteps(maze, newest_randomTree, 0.5, stream);
-			break;
+            aldousBroderWithSteps(maze, stream);
+            break;
+        case growing_tree:
+            growingTreeGenWithSteps(maze, newest_randomTree, 0.5, stream);
+            break;
+        case hunt_and_kill:
+            huntAndKillGenWithSteps(maze, stream);
+            break;
         case INVALID_ALGORITHM:
             break;
-        }
+    }
 }
 
 Tree_t *removeNode(Tree_t **head, int val) {
@@ -643,7 +649,7 @@ void joinTrees(Tree_t *head, Tree_t *node) {
 }
 
 void assignRandomStartAndStop(Maze_t *maze) {
-	Point_t start, stop;
+    Point_t start, stop;
 
     if (rand() % 2 == 0) {
         start.x = rand() % maze->width;
@@ -672,7 +678,7 @@ void assignRandomStartAndStop(Maze_t *maze) {
 }
 
 void assignRandomStartAndStopWithSteps(Maze_t *maze, FILE *restrict stream) {
-	Point_t start, stop;
+    Point_t start, stop;
 
     if (rand() % 2 == 0) {
         start.x = rand() % maze->width;
@@ -710,17 +716,21 @@ genAlgo_t strToGenAlgo(const char *str) {
         return prim;
     }
 
-	if (strcmp(str, "back") == 0) {
-		return back;
-	}
+    if (strcmp(str, "back") == 0) {
+        return back;
+    }
 
-	if (strcmp(str, "aldous-broder") == 0) {
-		return aldous_broder;
-	}
+    if (strcmp(str, "aldous-broder") == 0) {
+        return aldous_broder;
+    }
 
-	if (strcmp(str, "growing-tree") == 0) {
-		return growing_tree;
-	}
+    if (strcmp(str, "growing-tree") == 0) {
+        return growing_tree;
+    }
+
+    if (strcmp(str, "hunt-and-kill") == 0) {
+        return hunt_and_kill;
+    }
 
     return INVALID_ALGORITHM;
 }

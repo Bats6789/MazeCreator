@@ -13,7 +13,7 @@ static void recursive(Maze_t *maze, Point_t point) {
 
     for (size_t i = 0; i < dirSz; i++) {
         Point_t newPoint = pointShift(point, dir[i]);
-        size_t newIndex = newPoint.y * maze->width + newPoint.x;
+        size_t newIndex = pointToIndex(point, maze->width);
         if (!maze->cells[newIndex].visited) {
 			mazeBreakWall(maze, index, newIndex, dir[i]);
             maze->cells[newIndex].visited = 1;
@@ -34,7 +34,7 @@ static void recursiveWithSteps(Maze_t *maze, Point_t point,
 
     for (size_t i = 0; i < dirSz; i++) {
         Point_t newPoint = pointShift(point, dir[i]);
-        size_t newIndex = newPoint.y * maze->width + newPoint.x;
+        size_t newIndex = pointToIndex(point, maze->width);
         if (!maze->cells[newIndex].visited) {
 			mazeBreakWall(maze, index, newIndex, dir[i]);
             maze->cells[newIndex].visited = 1;

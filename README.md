@@ -116,7 +116,7 @@ in the future.
 - - - [x] Add middle cell
 - - - [x] Add random cell
 - - - [x] Allow mixing of methods
-- - [ ] Hunt-and-Kill
+- - [x] Hunt-and-Kill
 - - [ ] Wilson
 - - [ ] Eller
 - - [ ] Recursive Division

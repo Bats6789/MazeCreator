@@ -17,6 +17,7 @@ add_library(MazeTools STATIC
 				src/recursiveBacktracking.c
 				src/aldous_broder.c
 				src/growing_tree.c
+				src/huntAndKill.c
 				)
 
 add_executable(MazeCreator src/main.c)

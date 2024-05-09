@@ -126,6 +126,7 @@ typedef enum {
 	back,             /**@brief Recursive backtracking algorithm. */
 	aldous_broder,    /**@brief Aldous-Broder algorithm. */
 	growing_tree,     /**@brief Growing-Tree algorithm. */
+	hunt_and_kill,    /**@brief Hunt-and-Kill algorithm. */
     INVALID_ALGORITHM /**@brief Invalid algorithm. */
 } genAlgo_t;
 
