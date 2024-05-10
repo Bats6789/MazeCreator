@@ -18,7 +18,7 @@ static Point_t getRandomUnvistedPoint(Maze_t *maze) {
     return indexToPoint(unvistedIndexes[rand() % unvistedSz], maze->width);
 }
 
-void kruskalGen(Maze_t *maze) {
+void wilsonGen(Maze_t *maze) {
     size_t sz = maze->width * maze->height;
     size_t unvistedCellCount = sz;
     size_t i;
@@ -47,7 +47,7 @@ void kruskalGen(Maze_t *maze) {
             maze->cells[i].queued = 1;
         }
 
-        while (startPoint.x != point.x && startPoint.y != point.y) {
+        while (startPoint.x != point.x || startPoint.y != point.y) {
             i = pointToIndex(startPoint, maze->width);
 
             Point_t newPoint = pointShift(startPoint, travelVectors[i]);
@@ -76,7 +76,7 @@ void kruskalGen(Maze_t *maze) {
     maze->str = graphToString(maze->cells, maze->width, maze->height);
 }
 
-void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
+void wilsonGenWithSteps(Maze_t *maze, FILE *restrict stream) {
     size_t sz = maze->width * maze->height;
     size_t unvistedCellCount = sz;
     size_t i;
@@ -102,16 +102,28 @@ void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
 
         i = pointToIndex(point, maze->width);
         maze->cells[i].queued = 1;
+		maze->cells[i].observing = 1;
+		fprintStepIgnoreVisted(stream, maze);
+
         while (maze->cells[i].visited == 0) {
+			maze->cells[i].observing = 0;
+
             dir = getRandomDirection(point, *maze);
             travelVectors[i] = dir;
             point = pointShift(point, dir);
             i = pointToIndex(point, maze->width);
+
             maze->cells[i].queued = 1;
+            maze->cells[i].observing = 1;
+			fprintStepIgnoreVisted(stream, maze);
         }
 
-        while (startPoint.x != point.x && startPoint.y != point.y) {
+		maze->cells[pointToIndex(startPoint, maze->width)].observing = 1;
+		fprintStepIgnoreVisted(stream, maze);
+
+        while (startPoint.x != point.x || startPoint.y != point.y) {
             i = pointToIndex(startPoint, maze->width);
+			maze->cells[i].observing = 0;
 
             Point_t newPoint = pointShift(startPoint, travelVectors[i]);
 			size_t newI = pointToIndex(newPoint, maze->width);
@@ -120,8 +132,12 @@ void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
 			startPoint = newPoint;
 			maze->cells[i].queued = 0;
 			maze->cells[i].visited = 1;
+			maze->cells[newI].observing = 1;
 			unvistedCellCount--;
+			fprintStepIgnoreVisted(stream, maze);
         }
+
+		maze->cells[pointToIndex(point, maze->width)].observing = 0;
 
         for (size_t i = 0; i < sz; i++) {
             maze->cells[i].queued = 0;

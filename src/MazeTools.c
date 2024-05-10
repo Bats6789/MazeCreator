@@ -55,8 +55,8 @@ Maze_t createMaze(const char *str) {
                 maze.cells[i].path = 0;
             }
 
-            maze.cells[i].observing = str[strI] == ':' ? 1 : 0;
 			maze.cells[i].queued = str[strI] == 'Q' ? 1 : 0;
+            maze.cells[i].observing = str[strI] == ':' ? 1 : 0;
 
             if (str[strI] == 'S' || str[strI] == 's') {
                 maze.cells[i].start = 1;
@@ -461,6 +461,10 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
                 str[strI + 1] = getCellPathChar(cells[i], cells[i + 1]);
             }
 
+			if (cells[i].queued) {
+				str[strI] = cells[i].visited == 1 ? 'q' : 'Q';
+			}
+
             if (cells[i].observing) {
                 str[strI] = ':';
             }
@@ -472,10 +476,6 @@ char *graphToString(Cell_t *cells, size_t width, size_t height) {
             if (cells[i].path) {
                 str[strI] = '*';
             }
-
-			if (cells[i].queued) {
-				str[strI] = cells[i].visited == 1 ? 'q' : 'Q';
-			}
 
             if (cells[i].start == 1) {
                 str[strI] = cells[i].visited == 1 ? 's' : 'S';
