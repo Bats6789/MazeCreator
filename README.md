@@ -116,9 +116,9 @@ in the future.
 - - - [x] Add middle cell
 - - - [x] Add random cell
 - - - [x] Allow mixing of methods
-- - [x] Hunt-and-Kill
-- - [x] Wilson
-- - [ ] Eller
+- - [x] [Hunt-and-Kill](https://weblog.jamisbuck.org/2011/1/24/maze-generation-hunt-and-kill-algorithm)
+- - [x] [Wilson](https://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm)
+- - [x] [Eller](https://weblog.jamisbuck.org/2010/12/29/maze-generation-eller-s-algorithm#)
 - - [ ] Recursive Division
 - - [ ] Sidewinder
 - - [ ] Binary Tree
