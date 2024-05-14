@@ -11,6 +11,7 @@
 #include "kruskal.h"
 #include "prim.h"
 #include "recursiveBacktracking.h"
+#include "recursiveDivision.h"
 #include "wilson.h"
 
 Maze_t createMaze(const char *str) {
@@ -560,6 +561,9 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
 		case eller:
 			ellerGen(maze);
 			break;
+		case rDivide:
+			recursiveDivisionGen(maze);
+			break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -591,6 +595,9 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
             break;
 		case eller:
 			ellerGenWithSteps(maze, stream);
+			break;
+		case rDivide:
+			recursiveDivisionGenWithSteps(maze, stream);
 			break;
         case INVALID_ALGORITHM:
             break;

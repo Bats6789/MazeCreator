@@ -20,6 +20,7 @@ add_library(MazeTools STATIC
 				src/huntAndKill.c
 				src/wilson.c
 				src/eller.c
+				src/recursiveDivision.c
 				)
 
 add_executable(MazeCreator src/main.c)

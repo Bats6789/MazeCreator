@@ -130,6 +130,7 @@ typedef enum {
 	hunt_and_kill,    /**@brief Hunt-and-Kill algorithm. */
 	wilson,           /**@brief Wilson's algorithm. */
 	eller,            /**@brief Eller's algorithm. */
+	rDivide,          /**@brief Recursive Division. */
     INVALID_ALGORITHM /**@brief Invalid algorithm. */
 } genAlgo_t;
 
