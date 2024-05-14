@@ -21,7 +21,7 @@ static Point_t hunt(Maze_t *maze) {
                 newI = pointToIndex(newPoint, maze->width);
 
                 if (maze->cells[newI].visited == 1) {
-                    mazeBreakWall(maze, i, newI, dir[j]);
+                    mazeConnectCells(maze, i, newI, dir[j]);
                     return indexToPoint(i, maze->width);
                 }
             }
@@ -77,7 +77,7 @@ static Point_t huntWithSteps(Maze_t *maze, FILE *restrict stream) {
 		fprintStepIgnoreVisted(stream, maze);
 		maze->cells[i].observing = 0;
 
-        mazeBreakWall(maze, i, newI, foundDir);
+        mazeConnectCells(maze, i, newI, foundDir);
         fprintStepIgnoreVisted(stream, maze);
     }
 
@@ -110,8 +110,7 @@ void huntAndKillGen(Maze_t *maze) {
                 newI = pointToIndex(newPoint, maze->width);
 
                 if (maze->cells[newI].visited == 0) {
-                    mazeBreakWall(maze, pointToIndex(point, maze->width), newI,
-                                  dir[i]);
+					mazeBreakWall(maze, point, dir[i]);
                     maze->cells[newI].visited = 1;
                     wallBroken = true;
                     point = newPoint;
@@ -163,8 +162,7 @@ void huntAndKillGenWithSteps(Maze_t *maze, FILE *restrict stream) {
                 newI = pointToIndex(newPoint, maze->width);
 
                 if (maze->cells[newI].visited == 0) {
-                    mazeBreakWall(maze, pointToIndex(point, maze->width), newI,
-                                  dir[i]);
+					mazeBreakWall(maze, point, dir[i]);
                     maze->cells[newI].visited = 1;
                     wallBroken = true;
                     point = newPoint;

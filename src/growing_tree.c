@@ -122,7 +122,7 @@ void growingTreeGen(Maze_t *maze, growingTreeMethods_t method, double split) {
             size_t newI = pointToIndex(newPoint, maze->width);
 
             if (maze->cells[newI].visited == 0) {
-                mazeBreakWall(maze, trackedCells[trackedI], newI, dir[i]);
+                mazeConnectCells(maze, trackedCells[trackedI], newI, dir[i]);
 				trackedCells[trackedCellsSz++] = newI;
                 maze->cells[newI].visited = 1;
                 foundCell = true;
@@ -181,7 +181,7 @@ void growingTreeGenWithSteps(Maze_t *maze, growingTreeMethods_t method,
             size_t newI = pointToIndex(newPoint, maze->width);
 
             if (maze->cells[newI].visited == 0) {
-                mazeBreakWall(maze, trackedCells[trackedI], newI, dir[i]);
+                mazeConnectCells(maze, trackedCells[trackedI], newI, dir[i]);
 				trackedCells[trackedCellsSz] = newI;
 				maze->cells[trackedCells[trackedCellsSz++]].observing = 1;
                 maze->cells[newI].visited = 1;

@@ -49,11 +49,8 @@ void wilsonGen(Maze_t *maze) {
 
         while (startPoint.x != point.x || startPoint.y != point.y) {
             i = pointToIndex(startPoint, maze->width);
-
             Point_t newPoint = pointShift(startPoint, travelVectors[i]);
-			size_t newI = pointToIndex(newPoint, maze->width);
-
-            mazeBreakWall(maze, i, newI, travelVectors[i]);
+			mazeBreakWall(maze, point, travelVectors[i]);
 			startPoint = newPoint;
 			maze->cells[i].queued = 0;
 			maze->cells[i].visited = 1;
@@ -128,7 +125,7 @@ void wilsonGenWithSteps(Maze_t *maze, FILE *restrict stream) {
             Point_t newPoint = pointShift(startPoint, travelVectors[i]);
 			size_t newI = pointToIndex(newPoint, maze->width);
 
-            mazeBreakWall(maze, i, newI, travelVectors[i]);
+			mazeBreakWall(maze, point, travelVectors[i]);
 			startPoint = newPoint;
 			maze->cells[i].queued = 0;
 			maze->cells[i].visited = 1;

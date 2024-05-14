@@ -27,7 +27,7 @@ void aldousBroder(Maze_t *maze) {
 		size_t newIndex = pointToIndex(newPoint, maze->width);
 
 		if (!maze->cells[newIndex].visited) {
-			mazeBreakWall(maze, index, newIndex, dir);
+			mazeConnectCells(maze, index, newIndex, dir);
 			maze->cells[newIndex].visited = 1;
 			cellsNotVisitedCount--;
 		}
@@ -71,7 +71,7 @@ void aldousBroderWithSteps(Maze_t *maze, FILE *restrict stream) {
 		size_t newIndex = pointToIndex(newPoint, maze->width);
 
 		if (!maze->cells[newIndex].visited) {
-			mazeBreakWall(maze, index, newIndex, dir);
+			mazeConnectCells(maze, index, newIndex, dir);
 			maze->cells[newIndex].visited = 1;
 			cellsNotVisitedCount--;
 		}

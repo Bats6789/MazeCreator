@@ -127,7 +127,7 @@ void primGen(Maze_t *maze) {
 			dir = cellPt.y > cellPt2.y ? up : down;
         }
 
-		mazeBreakWall(maze, frontierI, randPotCellI, dir);
+		mazeConnectCells(maze, frontierI, randPotCellI, dir);
 
         joinTrees(trees + startI, trees + frontierI);
 
@@ -263,7 +263,7 @@ void primGenWithSteps(Maze_t *maze, FILE *restrict stream) {
 			dir = cellPt.y > cellPt2.y ? up : down;
         }
 
-		mazeBreakWall(maze, frontierI, randPotCellI, dir);
+		mazeConnectCells(maze, frontierI, randPotCellI, dir);
         maze->cells[frontierI].observing = 0;
 
         joinTrees(trees + startI, trees + frontierI);

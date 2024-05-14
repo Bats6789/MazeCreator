@@ -46,7 +46,7 @@ void kruskalGen(Maze_t *maze) {
         size_t i2 = pointToIndex(point, maze->width);
 
         if (!isSameTree(trees + i1, trees + i2)) {
-			mazeBreakWall(maze, i1, i2, edges[i].dir);
+			mazeConnectCells(maze, i1, i2, edges[i].dir);
             joinTrees(trees + i1, trees + i2);
         }
     }
@@ -102,7 +102,7 @@ void kruskalGenWithSteps(Maze_t *maze, FILE *restrict stream) {
         size_t i2 = pointToIndex(point, maze->width);
 
         if (!isSameTree(trees + i1, trees + i2)) {
-			mazeBreakWall(maze, i1, i2, edges[i].dir);
+			mazeConnectCells(maze, i1, i2, edges[i].dir);
             joinTrees(trees + i1, trees + i2);
             fprintStep(stream, maze);
         }
