@@ -129,6 +129,7 @@ typedef enum {
 	growing_tree,     /**@brief Growing-Tree algorithm. */
 	hunt_and_kill,    /**@brief Hunt-and-Kill algorithm. */
 	wilson,           /**@brief Wilson's algorithm. */
+	eller,            /**@brief Eller's algorithm. */
     INVALID_ALGORITHM /**@brief Invalid algorithm. */
 } genAlgo_t;
 
@@ -163,7 +164,7 @@ Maze_t createMazeWH(size_t width, size_t height);
  */
 Maze_t importMaze(FILE *stream);
 
-/**@brief Breaks a wall between two cells in a maze.
+/**@brief Connects two cells together in a direction.
  * 
  * @param maze The maze to modify.
  * @param i1 The index of the source cell.
@@ -171,7 +172,16 @@ Maze_t importMaze(FILE *stream);
  * @param dir The direction to break.
  * @return void
  */
-void mazeBreakWall(Maze_t *maze, size_t i1, size_t i2, Direction_t dir);
+void mazeConnectCells(Maze_t *maze, size_t i1, size_t i2, Direction_t dir);
+
+/**@brief Breaks a wall between two cells in a maze.
+ * 
+ * @param maze The maze to modify.
+ * @param point The location of the cell to break.
+ * @param dir The direction of the wall to break.
+ * @return void
+ */
+void mazeBreakWall(Maze_t *maze, Point_t point, Direction_t dir);
 
 /**@brief Finds the starting position in the maze.
  *

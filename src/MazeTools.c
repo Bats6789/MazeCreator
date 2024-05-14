@@ -5,6 +5,7 @@
 
 #include "MazeTools.h"
 #include "aldous_broder.h"
+#include "eller.h"
 #include "growing_tree.h"
 #include "huntAndKill.h"
 #include "kruskal.h"
@@ -134,7 +135,7 @@ Maze_t importMaze(FILE *stream) {
     return maze;
 }
 
-void mazeBreakWall(Maze_t *maze, size_t i1, size_t i2, Direction_t dir) {
+void mazeConnectCells(Maze_t *maze, size_t i1, size_t i2, Direction_t dir) {
     switch (dir) {
         case up:
             maze->cells[i1].top = 0;
@@ -153,6 +154,13 @@ void mazeBreakWall(Maze_t *maze, size_t i1, size_t i2, Direction_t dir) {
             maze->cells[i2].left = 0;
             break;
     }
+}
+
+void mazeBreakWall(Maze_t *maze, Point_t point, Direction_t dir) {
+	Point_t point2 = pointShift(point, dir);
+	size_t i1 = pointToIndex(point, maze->width);
+	size_t i2 = pointToIndex(point2, maze->width);
+	mazeConnectCells(maze, i1, i2, dir);
 }
 
 Point_t findStart(Maze_t maze) {
@@ -549,6 +557,9 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
         case wilson:
             wilsonGen(maze);
             break;
+		case eller:
+			ellerGen(maze);
+			break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -578,6 +589,9 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
         case wilson:
             wilsonGenWithSteps(maze, stream);
             break;
+		case eller:
+			ellerGenWithSteps(maze, stream);
+			break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -651,7 +665,7 @@ void joinTrees(Tree_t *head, Tree_t *node) {
         } else {
             joinTrees(head->left, node);
         }
-    } else {
+    } else if (head->val > node->val) {
         if (head->right == NULL) {
             node->parent = head;
             head->right = node;
@@ -748,6 +762,10 @@ genAlgo_t strToGenAlgo(const char *str) {
     if (strcmp(str, "wilson") == 0) {
         return wilson;
     }
+
+	if (strcmp(str, "eller") == 0) {
+		return eller;
+	}
 
     return INVALID_ALGORITHM;
 }
