@@ -22,6 +22,7 @@ add_library(MazeTools STATIC
 				src/eller.c
 				src/recursiveDivision.c
 				src/sidewinder.c
+				src/binaryTree.c
 				)
 
 add_executable(MazeCreator src/main.c)

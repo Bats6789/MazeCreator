@@ -8,15 +8,16 @@
  *                              INCLUDES                                *
  ************************************************************************/
 #include <ctype.h>
+#include <errno.h>
 #include <getopt.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 #include "MazeTools.h"
+#include "binaryTree.h"
 #include "growing_tree.h"
 
 /************************************************************************
@@ -38,6 +39,7 @@ static int verbose_flag = 0;  // option to print out everything
  ************************************************************************/
 void help();
 void growingTreeMethods(int depth);
+void binaryTreeBiases(int depth);
 
 int print(const char *frmt, ...);
 int printError(const char *frmt, ...);
@@ -58,6 +60,7 @@ int main(int argc, char *argv[]) {
     char *userChoice = NULL;
     genAlgo_t algorithm;
     growingTreeMethods_t method = INVALID_METHOD;
+    binaryTreeBiases_t bias = INVALID_BIAS;
     double split = DEFAULT_SPLIT;
 
     // clang-format off
@@ -151,6 +154,7 @@ int main(int argc, char *argv[]) {
     if (algorithm == growing_tree) {
         if (argv[optind] == NULL || isinteger(argv[optind])) {
             print("Using default algorithm Newest-Random with 0.5 split\n");
+			method = newest_randomTree;
         } else {
             size_t len = strlen(argv[optind]);
             userChoice = malloc(sizeof(*userChoice) * (len + 1));
@@ -219,6 +223,34 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (algorithm == binaryTree) {
+        if (argv[optind] == NULL || isinteger(argv[optind])) {
+            print("Using default bias SouthEast\n");
+			bias = southEastTree;
+        } else {
+            size_t len = strlen(argv[optind]);
+            userChoice = malloc(sizeof(*userChoice) * (len + 1));
+
+            for (size_t i = 0; i < len; i++) {
+                userChoice[i] = tolower(argv[optind][i]);
+            }
+            userChoice[len] = '\0';
+            bias = strToTreeBias(userChoice);
+
+            free(userChoice);
+
+            if (bias == INVALID_BIAS) {
+                printError("ERROR: %s is an invalid binary tree bias\n",
+                           argv[optind]);
+                puts("Valid binary tree biases are:");
+                binaryTreeBiases(1);
+                return EXIT_FAILURE;
+            }
+            // move past the method
+            optind++;
+        }
+    }
+
     if (argv[optind] == NULL) {
         print("Using default options (width = %d, height = %d)\n", width,
               height);
@@ -253,13 +285,19 @@ int main(int argc, char *argv[]) {
 
     if (!foundAlgo) {
         algorithm = kruskal;
-    } 
+    }
 
-	if (algorithm == growing_tree) {
+    if (algorithm == growing_tree) {
         if (verbose_flag) {
             growingTreeGenWithSteps(&maze, method, split, stepFile);
         } else {
             growingTreeGen(&maze, method, split);
+        }
+    } else if (algorithm == binaryTree) {
+        if (verbose_flag) {
+            binaryTreeGenWithSteps(&maze, bias, stepFile);
+        } else {
+            binaryTreeGen(&maze, bias);
         }
     } else {
         if (verbose_flag) {
@@ -307,16 +345,22 @@ void help() {
     puts("  Back (Recursive Backtracking)");
     puts("  Aldous-Broder");
     puts("  Growing-Tree <method>");
-	puts("  Hunt-and-Kill");
-	puts("  Wilson");
-	puts("  Eller");
-	puts("  Divide (Recursive Division)");
-	puts("  Sidewinder");
+    puts("  Hunt-and-Kill");
+    puts("  Wilson");
+    puts("  Eller");
+    puts("  Divide (Recursive Division)");
+    puts("  Sidewinder");
+    puts("  Binary-Tree <bias>");
     puts("");
     puts("Growing-Tree methods:");
     puts("  The growing tree has several methods for adding new cells.");
     puts("  They are as follows:");
     growingTreeMethods(2);
+    puts("");
+    puts("Binary Tree methods:");
+    puts("  The binary tree has four biases for generating a maze.");
+    puts("  They are as follows:");
+    binaryTreeBiases(2);
 }
 
 void growingTreeMethods(int depth) {
@@ -338,6 +382,20 @@ void growingTreeMethods(int depth) {
     printf("%sMiddle-Random <ratio>\n", spacing);
     printf("%sOldest-Random <ratio>\n", spacing);
     printf("\n%s<ratio> can be any number between 0.0-1.0\n", spacing);
+}
+
+void binaryTreeBiases(int depth) {
+    char spacing[2 * depth + 1];
+
+    for (size_t i = 0; i < 2 * depth; i++) {
+        spacing[i] = ' ';
+    }
+    spacing[2 * depth] = '\0';
+
+    printf("%sNorthWest\n", spacing);
+    printf("%sNorthEast\n", spacing);
+    printf("%sSouthWest\n", spacing);
+    printf("%sSouthEast\n", spacing);
 }
 
 int printError(const char *frmt, ...) {

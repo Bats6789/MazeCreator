@@ -5,6 +5,7 @@
 
 #include "MazeTools.h"
 #include "aldous_broder.h"
+#include "binaryTree.h"
 #include "eller.h"
 #include "growing_tree.h"
 #include "huntAndKill.h"
@@ -568,6 +569,9 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
 		case sidewinder:
 			sidewinderGen(maze);
 			break;
+		case binaryTree:
+			binaryTreeGen(maze, southWestTree);
+			break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -605,6 +609,9 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
 			break;
 		case sidewinder:
 			sidewinderGenWithSteps(maze, stream);
+			break;
+		case binaryTree:
+			binaryTreeGenWithSteps(maze, southWestTree, stream);
 			break;
         case INVALID_ALGORITHM:
             break;
@@ -787,6 +794,10 @@ genAlgo_t strToGenAlgo(const char *str) {
 
 	if (strcmp(str, "sidewinder") == 0) {
 		return sidewinder;
+	}
+
+	if (strcmp(str, "binary-tree") == 0) {
+		return binaryTree;
 	}
 
     return INVALID_ALGORITHM;

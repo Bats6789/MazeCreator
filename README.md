@@ -121,7 +121,7 @@ in the future.
 - - [x] [Eller](https://weblog.jamisbuck.org/2010/12/29/maze-generation-eller-s-algorithm#)
 - - [x] [Recursive Division](https://weblog.jamisbuck.org/2011/1/12/maze-generation-recursive-division-algorithm.html)
 - - [x] [Sidewinder](https://weblog.jamisbuck.org/2011/2/3/maze-generation-sidewinder-algorithm)
-- - [ ] Binary Tree
+- - [x] [Binary Tree](https://weblog.jamisbuck.org/2011/2/1/maze-generation-binary-tree-algorithm#)
 - - [ ] Cellular Automaton
 - [x] Verbose Steps
 - [x] Write Help

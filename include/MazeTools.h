@@ -132,6 +132,7 @@ typedef enum {
     eller,            /**@brief Eller's algorithm. */
     rDivide,          /**@brief Recursive Division algorithm. */
     sidewinder,       /**@brief Sidewinder algorithm. */
+	binaryTree,       /**@brief Binary Tree algorithm. */
     INVALID_ALGORITHM /**@brief Invalid algorithm. */
 } genAlgo_t;
 

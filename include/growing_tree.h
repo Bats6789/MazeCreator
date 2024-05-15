@@ -58,6 +58,11 @@ void growingTreeGen(Maze_t *maze, growingTreeMethods_t method, double split);
 void growingTreeGenWithSteps(Maze_t *maze, growingTreeMethods_t method,
                              double split, FILE *restrict stream);
 
+/**@brief Converts a string to a growing tree method.
+ *
+ * @param str The string to convert.
+ * @return The method from the string.
+ */
 growingTreeMethods_t strToTreeMethod(const char *str);
 
 #endif /* ifndef __GROWING_TREE_H__ */
