@@ -12,6 +12,7 @@
 #include "prim.h"
 #include "recursiveBacktracking.h"
 #include "recursiveDivision.h"
+#include "sidewinder.h"
 #include "wilson.h"
 
 Maze_t createMaze(const char *str) {
@@ -564,6 +565,9 @@ void generateMaze(Maze_t *maze, genAlgo_t algorithm) {
 		case rDivide:
 			recursiveDivisionGen(maze);
 			break;
+		case sidewinder:
+			sidewinderGen(maze);
+			break;
         case INVALID_ALGORITHM:
             break;
     }
@@ -598,6 +602,9 @@ void generateMazeWithSteps(Maze_t *maze, genAlgo_t algorithm,
 			break;
 		case rDivide:
 			recursiveDivisionGenWithSteps(maze, stream);
+			break;
+		case sidewinder:
+			sidewinderGenWithSteps(maze, stream);
 			break;
         case INVALID_ALGORITHM:
             break;
@@ -776,6 +783,10 @@ genAlgo_t strToGenAlgo(const char *str) {
 
 	if (strcmp(str, "divide") == 0) {
 		return rDivide;
+	}
+
+	if (strcmp(str, "sidewinder") == 0) {
+		return sidewinder;
 	}
 
     return INVALID_ALGORITHM;

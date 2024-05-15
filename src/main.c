@@ -311,6 +311,7 @@ void help() {
 	puts("  Wilson");
 	puts("  Eller");
 	puts("  Divide (Recursive Division)");
+	puts("  Sidewinder");
     puts("");
     puts("Growing-Tree methods:");
     puts("  The growing tree has several methods for adding new cells.");

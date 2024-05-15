@@ -124,13 +124,14 @@ typedef struct {
 typedef enum {
     kruskal,          /**@brief Kruskal algorithm. */
     prim,             /**@brief Prim algorithm. */
-	back,             /**@brief Recursive backtracking algorithm. */
-	aldous_broder,    /**@brief Aldous-Broder algorithm. */
-	growing_tree,     /**@brief Growing-Tree algorithm. */
-	hunt_and_kill,    /**@brief Hunt-and-Kill algorithm. */
-	wilson,           /**@brief Wilson's algorithm. */
-	eller,            /**@brief Eller's algorithm. */
-	rDivide,          /**@brief Recursive Division. */
+    back,             /**@brief Recursive backtracking algorithm. */
+    aldous_broder,    /**@brief Aldous-Broder algorithm. */
+    growing_tree,     /**@brief Growing-Tree algorithm. */
+    hunt_and_kill,    /**@brief Hunt-and-Kill algorithm. */
+    wilson,           /**@brief Wilson's algorithm. */
+    eller,            /**@brief Eller's algorithm. */
+    rDivide,          /**@brief Recursive Division algorithm. */
+    sidewinder,       /**@brief Sidewinder algorithm. */
     INVALID_ALGORITHM /**@brief Invalid algorithm. */
 } genAlgo_t;
 
@@ -166,7 +167,7 @@ Maze_t createMazeWH(size_t width, size_t height);
 Maze_t importMaze(FILE *stream);
 
 /**@brief Connects two cells together in a direction.
- * 
+ *
  * @param maze The maze to modify.
  * @param i1 The index of the source cell.
  * @param i2 The index of the destination cell.
@@ -176,7 +177,7 @@ Maze_t importMaze(FILE *stream);
 void mazeConnectCells(Maze_t *maze, size_t i1, size_t i2, Direction_t dir);
 
 /**@brief Breaks a wall between two cells in a maze.
- * 
+ *
  * @param maze The maze to modify.
  * @param point The location of the cell to break.
  * @param dir The direction of the wall to break.
@@ -362,16 +363,16 @@ Tree_t *removeNode(Tree_t **head, int val);
 void joinTrees(Tree_t *head, Tree_t *node);
 
 /**@brief Assigns a random start and stop location in a maze.
- * 
+ *
  * @param maze The maze to assign the points.
  */
 void assignRandomStartAndStop(Maze_t *maze);
 
 /**@brief Assigns a random start and stop location in a maze, and writes it.
  *
- * Note: Only writes the start step. The stop step is left for the user to 
+ * Note: Only writes the start step. The stop step is left for the user to
  * determine when to write it.
- * 
+ *
  * @param maze The maze to assign the points.
  * @param stream The stream for writing.
  */
