@@ -774,5 +774,9 @@ genAlgo_t strToGenAlgo(const char *str) {
 		return eller;
 	}
 
+	if (strcmp(str, "divide") == 0) {
+		return rDivide;
+	}
+
     return INVALID_ALGORITHM;
 }

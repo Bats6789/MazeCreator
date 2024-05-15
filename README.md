@@ -119,7 +119,7 @@ in the future.
 - - [x] [Hunt-and-Kill](https://weblog.jamisbuck.org/2011/1/24/maze-generation-hunt-and-kill-algorithm)
 - - [x] [Wilson](https://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm)
 - - [x] [Eller](https://weblog.jamisbuck.org/2010/12/29/maze-generation-eller-s-algorithm#)
-- - [ ] Recursive Division
+- - [x] [Recursive Division](https://weblog.jamisbuck.org/2011/1/12/maze-generation-recursive-division-algorithm.html)
 - - [ ] Sidewinder
 - - [ ] Binary Tree
 - - [ ] Cellular Automaton
