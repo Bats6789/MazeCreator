@@ -253,7 +253,9 @@ int main(int argc, char *argv[]) {
 
     if (!foundAlgo) {
         algorithm = kruskal;
-    } else if (algorithm == growing_tree) {
+    } 
+
+	if (algorithm == growing_tree) {
         if (verbose_flag) {
             growingTreeGenWithSteps(&maze, method, split, stepFile);
         } else {
