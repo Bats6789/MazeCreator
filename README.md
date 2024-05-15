@@ -52,6 +52,7 @@ The following symbols are defined for a maze:
 * S     - Starting location
 * X     - Destination
 * :     - Observing
+* Q     - Queued
 
 ### Format
 A valid maze will have:
@@ -98,10 +99,12 @@ Notice that for a maze of size MxN, it takes $(2M+1)\times(2N+1)$ characters
 to store the maze.
 
 #### Notes:
-Oberving cells (:) only come into play for Prim's algorithm, and only during verbose
-step generation. The observing cell allows the user to see which cells the algorithm
-is currently considering for processing. It may have application for other algoritms
-in the future.
+Observing cells (:) only come into play for verbose step generation.
+The observing cell allows the user to see which cells the algorithm
+is currently considering for processing.
+
+Queued cells (Q) cells only come into play for verbose step generation.
+The queued cells are cells that the algorithm is remembering, but not actively observing.
 
 ## TODO
 - [x] Maze Viewer (text based)
