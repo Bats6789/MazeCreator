@@ -105,7 +105,7 @@ in the future.
 
 ## TODO
 - [x] Maze Viewer (text based)
-- [ ] Maze Generator
+- [x] Maze Generator
 - - [x] [Kruskal](https://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm)
 - - [x] [Prim](https://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm)
 - - [x] [Recursive Backtracker](https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking)
@@ -122,6 +122,5 @@ in the future.
 - - [x] [Recursive Division](https://weblog.jamisbuck.org/2011/1/12/maze-generation-recursive-division-algorithm.html)
 - - [x] [Sidewinder](https://weblog.jamisbuck.org/2011/2/3/maze-generation-sidewinder-algorithm)
 - - [x] [Binary Tree](https://weblog.jamisbuck.org/2011/2/1/maze-generation-binary-tree-algorithm#)
-- - [ ] Cellular Automaton
 - [x] Verbose Steps
 - [x] Write Help
