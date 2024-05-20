@@ -1,5 +1,5 @@
 # MazeCreator
-Generates mazes
+Generates mazes using various algorithms.
 
 ## Build
 
