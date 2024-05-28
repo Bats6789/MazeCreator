@@ -14,10 +14,10 @@ cmake --build build
 ```
 The compiled program will be found in **bin**.
 
-## Generate a maze and solve
-Simply running `MazeSolver` will generate a 10x10 maze.
+## Generate a maze
+Simply running `MazeCreator` will generate a 10x10 maze.
 
-Running `MazeSolver <W> <H>` will generate a maze of size WxH.
+Running `MazeCreator <W> <H>` will generate a maze of size WxH.
 
 ### Generating example
 This is an example of a generated maze:
