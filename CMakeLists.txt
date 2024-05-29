@@ -23,6 +23,10 @@ add_library(MazeTools STATIC
 				src/recursiveDivision.c
 				src/sidewinder.c
 				src/binaryTree.c
+				src/depthFirst.c
+				src/breadthFirst.c
+				src/dijkstra.c
+				src/aStar.c
 				)
 
 add_executable(MazeCreator src/main.c)
@@ -30,4 +34,4 @@ add_executable(MazeCreator src/main.c)
 target_include_directories(MazeCreator PUBLIC include)
 target_include_directories(MazeViewer PUBLIC include)
 target_include_directories(MazeTools PUBLIC include)
-target_link_libraries(MazeCreator MazeViewer MazeTools)
+target_link_libraries(MazeCreator MazeViewer MazeTools m)

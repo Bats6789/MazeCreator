@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include "MazeTools.h"
+#include "recursiveBacktracking.h"
 
 static void recursive(Maze_t *maze, Point_t point) {
     Direction_t dir[4];
