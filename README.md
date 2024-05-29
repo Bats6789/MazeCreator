@@ -1,6 +1,86 @@
 # MazeCreator
 Generates mazes using various algorithms.
 
+## Special Thanks
+Special thanks to Jamis Buck for writing the blog posts I used to learn these algorithms. [Jamis Buck's blog.](https://weblog.jamisbuck.org/)
+
+## Features
+
+### Algorithms
+The currently supported algorithms are:
+ 1. Kruskal
+ 2. Prim
+ 3. Recursive Backtracker
+ 4. Aldous-Broder
+ 5. Growing Tree
+    1. Add oldest cell
+    2. Add newest cell
+    3. Add middle cell
+    4. Add random cell
+    5. Allow mixing of methods
+ 6. Hunt-and-Kill
+ 7. Wilson
+ 8. Eller
+ 9. Recursive Division
+10. Sidewinder
+11. Binary Tree
+    1. North-West
+    2. North-East
+    3. South-West
+    4. South-East
+
+### Step generation
+Each step of generating a maze can be written to a file using the `-v` flag.
+
+#### Example
+Running `MazeCreator -v demo.steps 2 2` may produce the maze:
+```
+#####
+#  X#
+### #
+#S  #
+#####
+```
+
+and a file names `demo.steps` that contains:
+```
+#####
+# # #
+#####
+# # #
+#####
+
+#####
+# # #
+### #
+# # #
+#####
+
+#####
+#   #
+### #
+# # #
+#####
+
+#####
+#   #
+### #
+#   #
+#####
+
+#####
+#   #
+### #
+#S  #
+#####
+
+#####
+#  X#
+### #
+#S  #
+#####
+```
+
 ## Build
 
 ### CMAKE
